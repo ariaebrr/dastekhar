@@ -41,20 +41,32 @@
         .preview-sticker img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
         .preview-text-content { flex-grow: 1; font-size: 15px; white-space: pre-wrap; word-wrap: break-word; }
         .preview-border { margin-top: 10px; font-size: 12px; color: var(--tg-hint); white-space: pre-wrap; text-align: center; }
+        /* New Debug Button Style */
+        .debug-button { background-color: var(--tg-hint); color: var(--tg-bg); margin-top: 10px; padding: 8px; font-size: 12px; border-radius: 8px; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="main-content">
-        <div id="page-submit" class="page"><h2>New Submission</h2><div class="form-section grid-2"><div class="form-button" id="type-ordinary">Ordinary 🌪</div><div class="form-button" id="type-sinners">Sinners ⛓</div></div><div class="form-section sticker-button-wrapper"><div class="form-button" id="sticker-selector">Select Sticker</div><img id="sticker-preview-thumb" src="" style="display: none;"></div><div class="form-section"><textarea id="news-text" placeholder="Write your news text here..."></textarea></div><div class="form-section preview-container" id="live-preview" style="display: none;"><h3>Live Preview</h3><div class="preview-content"><div class="preview-sticker"><img id="preview-sticker-img" src=""></div><div class="preview-text-content"><span id="preview-text"></span></div></div><div class="preview-border" id="preview-border"></div></div><div class="option-item"><span>Enable Anonymous Replies</span><label class="toggle-switch"><input type="checkbox" id="anon-reply-checkbox"><span class="slider"></span></label></div></div>
+        <div id="page-submit" class="page">
+            <h2>New Submission</h2>
+            <div class="form-section grid-2"><div class="form-button" id="type-ordinary">Ordinary 🌪</div><div class="form-button" id="type-sinners">Sinners ⛓</div></div>
+            <div class="form-section sticker-button-wrapper"><div class="form-button" id="sticker-selector">Select Sticker</div><img id="sticker-preview-thumb" src="" style="display: none;"></div>
+            <div class="form-section"><textarea id="news-text" placeholder="Write your news text here..."></textarea></div>
+            <div class="form-section preview-container" id="live-preview" style="display: none;"><h3>Live Preview</h3><div class="preview-content"><div class="preview-sticker"><img id="preview-sticker-img" src=""></div><div class="preview-text-content"><span id="preview-text"></span></div></div><div class="preview-border" id="preview-border"></div></div>
+            <div class="option-item"><span>Enable Anonymous Replies</span><label class="toggle-switch"><input type="checkbox" id="anon-reply-checkbox"><span class="slider"></span></label></div>
+            <button id="debug-btn" class="debug-button">Debug Info</button>
+        </div>
         <div id="page-shop" class="page"><h2>🛍️ Shop</h2><p style="text-align: center; color: var(--tg-hint);">The graphical shop for borders and pins will be built here.</p></div>
         <div id="page-profile" class="page"><h2>👤 My Profile</h2><p style="text-align: center; color: var(--tg-hint);">Your stats, achievements, and rank dashboard will appear here.</p></div>
     </div>
     <nav class="tab-bar"><div class="tab-item" data-page="page-submit"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path></svg></div><div class="tab-item" data-page="page-shop"><svg viewBox="0 0 24 24"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 16H6V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v12z"></path></svg></div><div class="tab-item" data-page="page-profile"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg></div></nav>
 
 <script>
+    // ### NEW ROBUST SCRIPT STRUCTURE ###
+
     const tg = window.Telegram.WebApp;
 
-    // --- DOM Elements, State, Borders, etc. (Unchanged) ---
+    // 1. Get all DOM elements first
     const tabItems = document.querySelectorAll('.tab-item');
     const pages = document.querySelectorAll('.page');
     const btnOrdinary = document.getElementById('type-ordinary');
@@ -67,69 +79,78 @@
     const previewStickerImg = document.getElementById('preview-sticker-img');
     const previewText = document.getElementById('preview-text');
     const previewBorder = document.getElementById('preview-border');
+    const debugBtn = document.getElementById('debug-btn');
+    
+    // 2. Define state and constants
     const BORDERS = { ordinary: "┄ ───╌ ⟡ ╌─── ┄\n𑑍 CinderNews.t.me .", sinners: "⟣╌─── ┄ ───╌⟢\n𑑍 CinderNews.t.me ." };
     let submissionData = { newsType: null, stickerUrl: null, stickerFileId: null, text: '', enableAnonReply: false };
 
-    // --- Helper Functions (Unchanged) ---
+    // 3. Define all functions
     function showPage(pageId) { /* ... */ }
     function updatePreview() { /* ... */ }
     function checkFormCompletion() { /* ... */ }
-
-    // ### THIS IS THE NEW ROBUST STICKER LOGIC ###
-
-    // We put the logic for handling a selected sticker into its own function
-    // so that both the new and old methods can use it.
     function handleStickerSelected(sticker) {
         submissionData.stickerFileId = sticker.file_id;
         submissionData.stickerUrl = sticker.thumbnail_url;
-        
         stickerPreviewThumb.src = sticker.thumbnail_url;
         stickerPreviewThumb.style.display = 'block';
-        
         checkFormCompletion();
         updatePreview();
     }
 
-    // This is the main click handler for the button.
-    stickerSelector.addEventListener('click', () => {
-        // First, try to use the NEW (event-based) method.
-        if (tg.openStickerPicker) {
-            tg.openStickerPicker();
-        } 
-        // If that's not available, fall back to the OLD (callback-based) method.
-        else if (tg.showStickerPicker) {
-            tg.showStickerPicker({ text: 'Select a sticker' }, (sticker) => {
-                // The old method doesn't trigger the 'stickerSelected' event,
-                // so we have to call our handler function manually.
-                handleStickerSelected(sticker);
-            });
-        } 
-        // If neither method is available, inform the user.
-        else {
-            tg.showAlert('Your version of Telegram does not support the sticker picker. Please update your app.');
-        }
+    // 4. Wait for Telegram to be fully ready before setting up anything interactive
+    tg.ready(() => {
+        // Expand the app to full height
+        tg.expand();
+        
+        // Set up the main submission button
+        tg.MainButton.setText('Submit News');
+
+        // --- Event Listeners ---
+        tabItems.forEach(tab => tab.addEventListener('click', () => showPage(tab.dataset.page)));
+        btnOrdinary.addEventListener('click', () => { submissionData.newsType = 'Ordinary 🌪'; btnOrdinary.classList.add('active'); btnSinners.classList.remove('active'); checkFormCompletion(); updatePreview(); });
+        btnSinners.addEventListener('click', () => { submissionData.newsType = 'Sinners ⛓'; btnSinners.classList.add('active'); btnOrdinary.classList.remove('active'); checkFormCompletion(); updatePreview(); });
+        newsText.addEventListener('input', (e) => { submissionData.text = e.target.value; checkFormCompletion(); updatePreview(); });
+        anonReplyCheckbox.addEventListener('change', (e) => { submissionData.enableAnonReply = e.target.checked; });
+        
+        // Sticker Picker Logic
+        stickerSelector.addEventListener('click', () => {
+            if (tg.openStickerPicker) {
+                tg.openStickerPicker();
+            } else if (tg.showStickerPicker) {
+                tg.showStickerPicker({ text: 'Select a sticker' }, handleStickerSelected);
+            } else {
+                tg.showAlert('Your version of Telegram does not support the sticker picker. Please update your app.');
+            }
+        });
+        tg.onEvent('stickerSelected', handleStickerSelected);
+
+        // Submission Logic
+        tg.onEvent('mainButtonClicked', () => {
+            if (document.getElementById('page-submit').classList.contains('active')) {
+                tg.sendData(JSON.stringify(submissionData));
+                tg.close();
+            }
+        });
+
+        // Debug Button Logic
+        debugBtn.addEventListener('click', () => {
+            const debugInfo = [
+                `Version: ${tg.version}`,
+                `Platform: ${tg.platform}`,
+                `Is Expanded: ${tg.isExpanded}`,
+                `'openStickerPicker' available: ${!!tg.openStickerPicker}`,
+                `'showStickerPicker' available: ${!!tg.showStickerPicker}`
+            ];
+            tg.showAlert(debugInfo.join('\n'));
+        });
+
+        // Show the initial page
+        showPage('page-submit');
+        updatePreview();
     });
 
-    // This listener is for the NEW method. It waits for Telegram to send the event.
-    tg.onEvent('stickerSelected', handleStickerSelected);
-    
-    // ### END OF NEW LOGIC ###
-
-
-    // --- Other Event Handlers (Unchanged) ---
-    btnOrdinary.addEventListener('click', () => { submissionData.newsType = 'Ordinary 🌪'; btnOrdinary.classList.add('active'); btnSinners.classList.remove('active'); checkFormCompletion(); updatePreview(); });
-    btnSinners.addEventListener('click', () => { submissionData.newsType = 'Sinners ⛓'; btnSinners.classList.add('active'); btnOrdinary.classList.remove('active'); checkFormCompletion(); updatePreview(); });
-    newsText.addEventListener('input', (e) => { submissionData.text = e.target.value; checkFormCompletion(); updatePreview(); });
-    anonReplyCheckbox.addEventListener('change', (e) => { submissionData.enableAnonReply = e.target.checked; });
-    tg.onEvent('mainButtonClicked', () => { if (document.getElementById('page-submit').classList.contains('active')) { tg.sendData(JSON.stringify(submissionData)); tg.close(); } });
-
-    // --- Initialization (Unchanged) ---
-    tg.ready();
-    tg.expand();
-    showPage('page-submit');
-    updatePreview();
-    
-    // --- Minified Helper Functions (for completeness) ---
+    // Minified Helper Functions (for completeness)
     function showPage(pageId){pages.forEach(p=>p.classList.remove('active'));document.getElementById(pageId).classList.add('active');tabItems.forEach(t=>t.classList.toggle('active',t.dataset.page===pageId));if(pageId==='page-submit')checkFormCompletion();else tg.MainButton.hide();}
     function updatePreview(){let s=!1;submissionData.stickerUrl?(previewStickerImg.src=submissionData.stickerUrl,s=!0):previewStickerImg.src="";previewText.innerText=submissionData.text||"";submissionData.text&&(s=!0);submissionData.newsType==="Ordinary 🌪"?previewBorder.innerText=BORDERS.ordinary:submissionData.newsType==="Sinners ⛓"?previewBorder.innerText=BORDERS.sinners:previewBorder.innerText="";livePreview.style.display=s?"block":"none"}
     function checkFormCompletion(){submissionData.newsType&&submissionData.stickerFileId&&submissionData.text.trim()!==""?tg.MainButton.show():tg.MainButton.hide()}
