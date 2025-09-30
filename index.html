@@ -274,17 +274,20 @@
         submissionData.enableAnonReply = e.target.checked;
     });
 
-    tg.onEvent('mainButtonClicked', () => {
-        if (document.getElementById('page-submit').classList.contains('active')) {
-            // Submission logic remains the same
-            tg.sendData(JSON.stringify({
-                news_type: submissionData.newsType,
-                sticker_file_id: submissionData.stickerFileId,
-                text: submissionData.text,
-                enable_anon_reply: submissionData.enableAnonReply
-            }));
-        }
-    });
+// index.html -> inside the <script> tag
+
+        tg.onEvent('mainButtonClicked', () => {
+            // This function only runs if the "Submit" page is active
+            if (document.getElementById('page-submit').classList.contains('active')) {
+                
+                // We are just sending the submissionData object.
+                // The bot will automatically know which user it came from.
+                tg.sendData(JSON.stringify(submissionData));
+                
+                // After sending the data, we can close the Mini App.
+                tg.close();
+            }
+        });
 
     // --- Initialization ---
     tg.ready();
