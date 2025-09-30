@@ -13,6 +13,7 @@
             --tg-button: var(--tg-theme-button-color, #007aff);
             --tg-button-text: var(--tg-theme-button-text-color, #ffffff);
             --tg-secondary-bg: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            --tg-header-bg: var(--tg-theme-header-bg-color, #efeff3);
         }
 
         @keyframes fadeInUp {
@@ -43,7 +44,7 @@
         .main-content {
             flex-grow: 1;
             overflow-y: auto;
-            padding: 20px 20px 80px 20px; /* Add padding to bottom to not be hidden by tab bar */
+            padding: 20px 20px 80px 20px;
         }
 
         .page {
@@ -71,7 +72,7 @@
             bottom: 0;
             width: 100%;
             box-sizing: border-box;
-            padding-bottom: env(safe-area-inset-bottom, 0); /* Support for iPhone notches */
+            padding-bottom: env(safe-area-inset-bottom, 0);
         }
 
         .tab-item {
@@ -102,10 +103,63 @@
         .sticker-selector img { max-width: 120px; max-height: 120px; }
         textarea { width: 100%; height: 150px; padding: 12px; border-radius: 12px; border: 1px solid var(--tg-secondary-bg); background-color: var(--tg-secondary-bg); color: var(--tg-text); font-size: 16px; resize: none; box-sizing: border-box; margin-bottom: 15px; }
         textarea:focus { background-color: transparent; border-color: var(--tg-button); outline: none; }
-        .options { display: flex; align-items: center; cursor: pointer; font-size: 15px; }
-        .options input { margin-right: 12px; width: 18px; height: 18px; accent-color: var(--tg-button); }
         .action-button { width: 100%; padding: 15px; border-radius: 12px; background-color: var(--tg-secondary-bg); border: none; text-align: center; font-weight: 600; cursor: pointer; margin-top: 15px; color: var(--tg-text); font-size: 16px; }
         .action-button:active { transform: scale(0.98); }
+
+        /* --- NEW: Toggle Switch Styles --- */
+        .option-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            font-size: 15px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 51px;
+            height: 31px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--tg-secondary-bg);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 23px;
+            width: 23px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .slider {
+            background-color: var(--tg-button);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
     </style>
 </head>
 <body>
@@ -122,10 +176,15 @@
                 <img id="sticker-preview" src="" alt="Sticker Preview" style="display: none;">
             </div>
             <textarea id="news-text" placeholder="Write your news text here..."></textarea>
-            <label class="options">
-                <input type="checkbox" id="anon-reply-checkbox">
-                Enable Anonymous Replies
-            </label>
+            
+            <div class="option-item">
+                <span>Enable Anonymous Replies</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="anon-reply-checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
             <button id="load-presets-btn" class="action-button">Load Saved News 📝</button>
         </div>
 
@@ -154,42 +213,23 @@
 
 
 <script>
-    // --- All JavaScript from the previous version goes here, unchanged. ---
+    // The JavaScript remains exactly the same as before.
+    // It will continue to work perfectly with the new toggle switch.
+    
     const tg = window.Telegram.WebApp;
 
-    // --- Page Navigation Logic ---
     const tabItems = document.querySelectorAll('.tab-item');
     const pages = document.querySelectorAll('.page');
 
     function showPage(pageId) {
-        pages.forEach(page => {
-            page.classList.remove('active');
-        });
+        pages.forEach(page => page.classList.remove('active'));
         document.getElementById(pageId).classList.add('active');
-
-        tabItems.forEach(tab => {
-            if (tab.dataset.page === pageId) {
-                tab.classList.add('active');
-            } else {
-                tab.classList.remove('active');
-            }
-        });
-
-        if (pageId === 'page-submit') {
-            checkFormCompletion();
-        } else {
-            tg.MainButton.hide();
-        }
+        tabItems.forEach(tab => tab.classList.toggle('active', tab.dataset.page === pageId));
+        if (pageId === 'page-submit') checkFormCompletion(); else tg.MainButton.hide();
     }
 
-    tabItems.forEach(tab => {
-        tab.addEventListener('click', () => {
-            showPage(tab.dataset.page);
-        });
-    });
+    tabItems.forEach(tab => tab.addEventListener('click', () => showPage(tab.dataset.page)));
 
-
-    // --- Submission Page Logic (from before) ---
     const btnOrdinary = document.getElementById('type-ordinary');
     const btnSinners = document.getElementById('type-sinners');
     const stickerSelector = document.getElementById('sticker-selector');
@@ -197,7 +237,7 @@
     const stickerPreview = document.getElementById('sticker-preview');
     const newsText = document.getElementById('news-text');
     const anonReplyCheckbox = document.getElementById('anon-reply-checkbox');
-    const loadPresetsBtn = document.getElementById('load-presets-btn'); // For future use
+    const loadPresetsBtn = document.getElementById('load-presets-btn');
 
     let submissionData = { newsType: null, stickerFileId: null, text: '', enableAnonReply: false };
 
@@ -247,7 +287,6 @@
         }
     });
 
-    // --- Initialization ---
     tg.ready();
     tg.expand();
     showPage('page-submit');
