@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinder News Submission</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            text-align: center;
+            padding-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 id="greeting-text">Loading...</h1>
+
+    <script>
+        // Get the Telegram Web App object
+        const tg = window.Telegram.WebApp;
+
+        // Tell Telegram that your app is ready
+        tg.ready();
+
+        // Get the user's data (this is safe for display purposes)
+        const user = tg.initDataUnsafe.user;
+
+        // Find our h1 element and update its text
+        const greetingElement = document.getElementById('greeting-text');
+        if (user && user.first_name) {
+            greetingElement.innerText = `Hello, ${user.first_name}!`;
+        } else {
+            greetingElement.innerText = 'Hello, Anonymous User!';
+        }
+    </script>
+</body>
+</html>
