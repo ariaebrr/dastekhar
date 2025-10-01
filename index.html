@@ -2,34 +2,101 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Cinder Presets</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { 
-            font-family: monospace, sans-serif; 
-            background-color: #000000; 
-            color: #00ff00; 
-            padding: 20px; 
-            text-align: center;
-        }
-        h1 { font-size: 28px; }
-        p { font-size: 18px; word-wrap: break-word; }
+        :root {--tg-bg: var(--tg-theme-bg-color, #ffffff);--tg-text: var(--tg-theme-text-color, #000000);--tg-hint: var(--tg-theme-hint-color, #999999);--tg-button: var(--tg-theme-button-color, #007aff);--tg-secondary-bg: var(--tg-theme-secondary-bg-color, #f0f0f0);}
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--tg-bg); color: var(--tg-text); margin: 0; padding: 20px; }
+        h2 { font-size: 28px; font-weight: 700; margin: 0 0 25px 0; }
+        #presets-container { display: flex; flex-direction: column; gap: 10px; }
+        .preset-item { padding: 15px 20px; border-radius: 12px; background-color: var(--tg-secondary-bg); text-align: left; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .preset-item:active { background-color: #e0e0e0; }
+        .preset-item .news-type { font-size: 12px; color: var(--tg-hint); margin-left: 10px; white-space: nowrap; }
+        #message-area { color: var(--tg-hint); text-align: center; padding: 40px 0; }
     </style>
 </head>
 <body>
-    <h1>UPDATE SUCCESSFUL!</h1>
-    <p>If you see this green text on a black background, it means your Mini App is updating correctly.</p>
-    <p>Test Generated: October 1, 2025</p>
-</body>
+    <h2>My Saved News</h2>
+    <div id="presets-container">
+        </div>
+    <p id="message-area">Loading presets...</p>
+
 <script>
-    try {
-        const tg = window.Telegram.WebApp;
-        tg.ready(() => {
-            tg.showAlert('SUCCESS: The new JavaScript code is running!');
+    const tg = window.Telegram.WebApp;
+
+    const presetsContainer = document.getElementById('presets-container');
+    const messageArea = document.getElementById('message-area');
+
+    function populatePresets(presets) {
+        presetsContainer.innerHTML = '';
+
+        if (!presets || presets.length === 0) {
+            messageArea.textContent = 'You have no saved news presets. You can create them using the "My Saved News 📝" button in the bot.';
+            return;
+        }
+
+        messageArea.style.display = 'none';
+
+        presets.forEach(preset => {
+            const presetButton = document.createElement('div');
+            presetButton.className = 'preset-item';
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = preset.name;
+            
+            const typeSpan = document.createElement('span');
+            typeSpan.className = 'news-type';
+            typeSpan.textContent = preset.news_type;
+
+            presetButton.appendChild(nameSpan);
+            presetButton.appendChild(typeSpan);
+
+            presetButton.addEventListener('click', () => {
+                const messages = JSON.parse(preset.serialized_messages);
+                const stickerPart = messages.find(m => m.sticker);
+                const textPart = messages.find(m => m.text || m.caption);
+                
+                const submissionData = {
+                    newsType: preset.news_type,
+                    stickerFileId: stickerPart ? stickerPart.sticker : null,
+                    text: textPart ? (textPart.text || textPart.caption) : '',
+                    enableAnonReply: preset.anonymous_replies_enabled === 1
+                };
+                
+                tg.showConfirm(`Submit the preset "${preset.name}"?`, (isConfirmed) => {
+                    if (isConfirmed) {
+                        tg.sendData(JSON.stringify(submissionData));
+                    }
+                });
+            });
+
+            presetsContainer.appendChild(presetButton);
         });
-    } catch (e) {
-        alert('Error initializing Telegram script: ' + e.message);
     }
+
+    tg.onEvent('web_app_data_received', (eventData) => {
+        // THIS IS FOR DEBUGGING: Show the raw data we get from the bot
+        tg.showAlert(`Data received from bot: ${eventData.data}`);
+        
+        try {
+            if (eventData && eventData.data) {
+                const response = JSON.parse(eventData.data);
+                if (response.presets) {
+                    populatePresets(response.presets);
+                } else {
+                     messageArea.textContent = 'Received a response, but no presets were found.';
+                }
+            }
+        } catch (e) {
+            tg.showAlert(`Error parsing data from bot: ${e}`);
+        }
+    });
+
+    tg.ready(() => {
+        tg.expand();
+        tg.sendData(JSON.stringify({ event: 'get_presets' }));
+    });
 </script>
+</body>
 </html>
