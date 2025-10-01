@@ -57,7 +57,10 @@
 <body class="flex flex-col h-screen antialiased">
 
     <!-- Header with Glassmorphism Effect -->
-    <header class="bg-slate-900/70 backdrop-blur-lg border-b border-slate-700/50 p-4 fixed top-0 left-0 right-0 z-10">
+    <header class="bg-slate-900/70 backdrop-blur-lg border-b border-slate-700/50 p-4 fixed top-0 left-0 right-0 z-10 flex items-center justify-center">
+         <button id="back-button" class="absolute left-4 hidden text-slate-300 hover:text-white transition-colors">
+            <i data-lucide="arrow-left" class="w-6 h-6"></i>
+        </button>
         <h1 id="header-title" class="text-xl font-bold text-center text-slate-100"></h1>
     </header>
 
@@ -72,11 +75,10 @@
                         <div class="w-24 h-24 rounded-full bg-slate-700 mb-4"></div>
                         <div class="h-8 w-40 bg-slate-700 rounded-md mb-2"></div>
                         <div class="h-4 w-60 bg-slate-700 rounded-md"></div>
+                         <div class="h-5 w-32 bg-slate-700 rounded-md mt-3"></div>
                     </div>
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div class="bg-slate-800 p-4 rounded-xl h-24 shimmer"></div>
-                        <div class="bg-slate-800 p-4 rounded-xl h-24 shimmer"></div>
-                    </div>
+                     <div class="bg-slate-800 p-4 rounded-xl h-48 shimmer mb-6"></div>
+                     <div class="bg-slate-800 p-4 rounded-xl h-48 shimmer"></div>
                 </div>
             </div>
 
@@ -92,19 +94,43 @@
                         </div>
                         <h2 id="profile-username" class="text-2xl font-bold text-white"></h2>
                         <p id="profile-userid" class="text-xs text-slate-400 font-mono mt-1"></p>
+                        <div class="mt-3 bg-slate-700/50 text-violet-300 text-sm font-semibold px-4 py-1.5 rounded-full inline-block">
+                           Rank: <span id="profile-rank"></span>
+                        </div>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div class="bg-slate-800 p-4 rounded-xl text-center">
-                            <p class="text-sm text-slate-400">Cinder Points</p>
-                            <p id="profile-points" class="text-2xl font-bold text-violet-400"></p>
+                    <div class="bg-slate-800 p-4 rounded-xl mb-6">
+                        <h3 class="text-lg font-semibold mb-3 text-white px-2">Submission Stats</h3>
+                        <div id="profile-submission-stats" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+                    </div>
+                     <div class="bg-slate-800 p-4 rounded-xl mb-6">
+                        <div class="flex justify-between items-center mb-4 px-2">
+                             <h3 class="text-lg font-semibold text-white">Cinder Points</h3>
+                             <span id="profile-points-display" class="text-xl font-bold text-violet-400"></span>
                         </div>
-                        <div class="bg-slate-800 p-4 rounded-xl text-center">
-                            <p class="text-sm text-slate-400">Submissions</p>
-                            <p id="profile-submissions" class="text-2xl font-bold text-white"></p>
+                        <div class="px-2 space-y-2 text-sm text-slate-300 mb-4">
+                            <p class="flex items-start"><i data-lucide="check" class="w-4 h-4 mr-2 mt-1 text-violet-400 shrink-0"></i><span>Earn points for getting news approved.</span></p>
+                            <p class="flex items-start"><i data-lucide="star" class="w-4 h-4 mr-2 mt-1 text-violet-400 shrink-0"></i><span>Earn bonus points for starred submissions.</span></p>
+                            <p class="flex items-start"><i data-lucide="award" class="w-4 h-4 mr-2 mt-1 text-violet-400 shrink-0"></i><span>Unlock achievements to get large point rewards.</span></p>
+                        </div>
+                        <div class="px-2">
+                             <button onclick="showPage('transfer-page', 'Transfer Points')" class="w-full bg-violet-500 hover:bg-violet-600 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm flex items-center justify-center">
+                                <i data-lucide="send" class="w-4 h-4 mr-2"></i>Transfer Points
+                            </button>
                         </div>
                     </div>
-
+                     <div class="bg-slate-800 p-4 rounded-xl mb-6">
+                        <h3 class="text-lg font-semibold mb-3 text-white px-2">Achievements</h3>
+                         <div id="profile-achievements-preview" class="space-y-3 mb-4"></div>
+                        <div class="grid grid-cols-2 gap-3">
+                             <button onclick="showPage('achievements-page', 'All Achievements')" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm flex items-center justify-center">
+                                 <i data-lucide="award" class="w-4 h-4 mr-2"></i>All Achievements
+                             </button>
+                             <button onclick="showPage('ranks-page', 'All Ranks')" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm flex items-center justify-center">
+                                 <i data-lucide="bar-chart-3" class="w-4 h-4 mr-2"></i>View Ranks
+                             </button>
+                        </div>
+                    </div>
                     <div>
                         <h3 class="text-lg font-semibold mb-3 text-white">My Borders</h3>
                         <div id="profile-borders-list" class="grid grid-cols-2 sm:grid-cols-3 gap-4"></div>
@@ -112,44 +138,170 @@
                 </div>
 
                 <!-- Submit News Page -->
-                <div id="submit-page" class="page">
-                    <form id="news-form" class="space-y-6">
-                        <div>
-                            <label for="news-type" class="block text-sm font-medium text-slate-300 mb-2">News Type</label>
-                            <select id="news-type" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3 focus:ring-violet-500 focus:border-violet-500 transition">
-                                <option value="Ordinary">Ordinary 🌪</option>
-                                <option value="Sinners">Sinners ⛓</option>
-                            </select>
+                <div id="submit-page" class="page space-y-6">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2 text-white">How it Works</h3>
+                        <p class="text-sm text-slate-400">Submitting news is a simple process. You no longer need to add your own border; your currently equipped border from your profile will be applied automatically. You must use a sticker from our official gallery or one of your saved presets.</p>
+                    </div>
+
+                    <div id="submit-step-1" class="space-y-4">
+                        <h3 class="text-lg font-semibold text-white">Step 1: Choose a Sticker</h3>
+                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                             <button onclick="showPage('submit-presets-page', 'Load a Preset')" class="w-full bg-slate-800 hover:bg-slate-700/50 p-4 rounded-xl text-left transition-all flex items-center">
+                                 <i data-lucide="bookmark" class="w-8 h-8 text-violet-400 mr-4"></i>
+                                 <div>
+                                    <p class="font-bold text-white">Load a Preset</p>
+                                    <p class="text-xs text-slate-400">Use one of your saved news templates.</p>
+                                 </div>
+                            </button>
+                             <button onclick="showPage('submit-gallery-page', 'Sticker Gallery')" class="w-full bg-slate-800 hover:bg-slate-700/50 p-4 rounded-xl text-left transition-all flex items-center">
+                                 <i data-lucide="image" class="w-8 h-8 text-violet-400 mr-4"></i>
+                                 <div>
+                                    <p class="font-bold text-white">Choose from Gallery</p>
+                                    <p class="text-xs text-slate-400">Select an official sticker for your news.</p>
+                                 </div>
+                            </button>
+                         </div>
+                    </div>
+
+                    <div id="submit-step-2" class="hidden space-y-4">
+                         <h3 class="text-lg font-semibold text-white">Step 2: Write Your News</h3>
+                         <form id="news-form-content">
+                            <div>
+                                <label for="news-type" class="block text-sm font-medium text-slate-300 mb-2">News Type</label>
+                                <select id="news-type" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3 focus:ring-violet-500 focus:border-violet-500 transition">
+                                    <option value="Ordinary">Ordinary 🌪</option>
+                                    <option value="Sinners">Sinners ⛓</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="news-text" class="block text-sm font-medium text-slate-300 mb-2">News Content</label>
+                                <textarea id="news-text" rows="6" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3 focus:ring-violet-500 focus:border-violet-500 transition" placeholder="Type your news here..."></textarea>
+                            </div>
+                             <button type="button" id="generate-preview-btn" class="w-full bg-slate-600 hover:bg-slate-500 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm flex items-center justify-center">
+                                 <i data-lucide="eye" class="w-4 h-4 mr-2"></i>Generate Preview
+                             </button>
+                         </form>
+                    </div>
+
+                    <div id="submit-preview-section" class="hidden space-y-4">
+                        <h3 class="text-lg font-semibold text-white">Step 3: Preview</h3>
+                        <div id="news-preview" class="bg-slate-800/50 border border-slate-700 rounded-xl p-4 space-y-3">
+                            <!-- Preview will be generated here -->
                         </div>
-                        <div>
-                            <label for="news-text" class="block text-sm font-medium text-slate-300 mb-2">News Content</label>
-                            <textarea id="news-text" rows="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3 focus:ring-violet-500 focus:border-violet-500 transition" placeholder="Type your news here..."></textarea>
-                        </div>
-                        <div>
-                            <button type="submit" class="w-full bg-violet-500 hover:bg-violet-600 text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105">Submit News</button>
-                        </div>
-                    </form>
+                        <button id="final-submit-btn" class="w-full bg-violet-500 hover:bg-violet-600 text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105">Submit News</button>
+                    </div>
+
+                </div>
+                
+                <!-- Submit News Sub-Pages -->
+                <div id="submit-presets-page" class="page">
+                    <div id="presets-selection-list" class="space-y-3"></div>
+                </div>
+                <div id="submit-gallery-page" class="page">
+                    <div id="gallery-selection-list" class="grid grid-cols-3 sm:grid-cols-4 gap-4"></div>
                 </div>
 
-                <!-- Shop Page -->
+
+                <!-- Shop Main Menu Page -->
                 <div id="shop-page" class="page">
                      <div class="bg-slate-800 p-4 rounded-xl mb-6 flex justify-between items-center">
                         <span class="text-slate-400">Your Balance:</span>
                         <span id="shop-points" class="text-xl font-bold text-violet-400"></span>
                     </div>
+                    <div class="space-y-4">
+                        <button onclick="showPage('shop-borders-page', 'Borders Shop')" class="w-full bg-slate-800 hover:bg-slate-700/50 p-6 rounded-xl text-left transition-all flex items-center">
+                             <i data-lucide="gem" class="w-10 h-10 text-violet-400 mr-5"></i>
+                             <div>
+                                <p class="text-lg font-bold text-white">Borders Shop</p>
+                                <p class="text-sm text-slate-400">Customize your profile with unique borders.</p>
+                             </div>
+                        </button>
+                         <button onclick="showPage('shop-pins-page', 'Pin Shop')" class="w-full bg-slate-800 hover:bg-slate-700/50 p-6 rounded-xl text-left transition-all flex items-center">
+                             <i data-lucide="pin" class="w-10 h-10 text-violet-400 mr-5"></i>
+                             <div>
+                                <p class="text-lg font-bold text-white">Pin Shop</p>
+                                <p class="text-sm text-slate-400">Pin your news to the top of the channel.</p>
+                             </div>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Shop: Borders Page -->
+                <div id="shop-borders-page" class="page">
                     <div id="shop-items-list" class="space-y-3"></div>
                 </div>
+
+                <!-- Shop: Pins Page -->
+                <div id="shop-pins-page" class="page">
+                    <div id="shop-pins-list" class="space-y-3"></div>
+                </div>
+                
+                <!-- Gifting Page -->
+                <div id="gift-page" class="page">
+                    <form id="gift-form" class="space-y-6">
+                        <div class="bg-slate-800 p-4 rounded-xl">
+                            <p class="text-sm text-slate-400">You are gifting:</p>
+                            <p id="gift-item-name" class="text-lg font-bold text-violet-400"></p>
+                        </div>
+                        <div>
+                            <label for="gift-recipient" class="block text-sm font-medium text-slate-300 mb-2">Recipient</label>
+                            <input type="text" id="gift-recipient" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3 focus:ring-violet-500 focus:border-violet-500 transition" placeholder="Enter User ID or @username">
+                        </div>
+                        <div>
+                            <label for="gift-message" class="block text-sm font-medium text-slate-300 mb-2">Optional Message</label>
+                            <textarea id="gift-message" rows="3" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3 focus:ring-violet-500 focus:border-violet-500 transition" placeholder="Write a short message..."></textarea>
+                            <p class="text-xs text-slate-500 mt-2">Note: The recipient will only receive this message if they have started the main bot.</p>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full bg-violet-500 hover:bg-violet-600 text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center">
+                                <i data-lucide="gift" class="w-5 h-5 mr-2"></i>Confirm Gift
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Other Sub-Pages (Achievements, Ranks, Transfer) -->
+                <div id="achievements-page" class="page"><div id="achievements-list" class="space-y-3"></div></div>
+                <div id="ranks-page" class="page"><div id="ranks-list" class="space-y-4"></div></div>
+                <div id="transfer-page" class="page">
+                    <form id="transfer-form" class="space-y-6">
+                        <div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center">
+                            <span class="text-slate-400">Your Balance:</span>
+                            <span id="transfer-points-balance" class="text-xl font-bold text-violet-400"></span>
+                        </div>
+                        <div>
+                            <label for="transfer-recipient" class="block text-sm font-medium text-slate-300 mb-2">Recipient</label>
+                            <input type="text" id="transfer-recipient" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3 focus:ring-violet-500 focus:border-violet-500 transition" placeholder="Enter User ID or @username">
+                        </div>
+                        <div>
+                            <label for="transfer-amount" class="block text-sm font-medium text-slate-300 mb-2">Amount</label>
+                            <input type="number" id="transfer-amount" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3 focus:ring-violet-500 focus:border-violet-500 transition" placeholder="e.g., 100">
+                        </div>
+                         <div>
+                            <label for="transfer-message" class="block text-sm font-medium text-slate-300 mb-2">Optional Message</label>
+                            <textarea id="transfer-message" rows="3" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3 focus:ring-violet-500 focus:border-violet-500 transition" placeholder="Write a short message..."></textarea>
+                            <p class="text-xs text-slate-500 mt-2">Note: The recipient will only receive this message if they have started the main bot.</p>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full bg-violet-500 hover:bg-violet-600 text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center">
+                                <i data-lucide="send" class="w-5 h-5 mr-2"></i>Confirm Transfer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
             </div>
         </div>
     </main>
     
     <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-24 right-4 bg-green-500 text-white py-2 px-5 rounded-lg shadow-xl transform translate-y-20 opacity-0 transition-all duration-300">
+    <div id="toast" class="fixed bottom-24 right-4 bg-green-500 text-white py-2 px-5 rounded-lg shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 z-50">
         <p id="toast-message"></p>
     </div>
 
-    <!-- Bottom Navigation with Glassmorphism Effect -->
-    <nav class="bg-slate-900/70 backdrop-blur-lg border-t border-slate-700/50 p-2 fixed bottom-0 left-0 right-0">
+    <!-- Bottom Navigation -->
+    <nav id="main-nav" class="bg-slate-900/70 backdrop-blur-lg border-t border-slate-700/50 p-2 fixed bottom-0 left-0 right-0">
         <div class="flex justify-around max-w-2xl mx-auto">
             <button onclick="showPage('profile-page', 'My Profile')" class="nav-button flex flex-col items-center text-slate-400 p-2 rounded-lg w-20 transition-colors">
                 <i data-lucide="user-circle" class="nav-icon active-nav-icon w-6 h-6"></i>
@@ -167,31 +319,97 @@
     </nav>
 
     <script>
-        // --- CONFIGURATION (PLACEHOLDER) ---
-        // Once your Flask backend is live, the fetch calls below will work.
-        // For local testing, you can use a test user ID from your database.
-        const USER_ID = 123456789; // <-- !!! REPLACE WITH A REAL USER ID FOR TESTING !!!
+        // --- DATA (DUMMY & CONSTANTS) ---
+        const USER_ID = 123456789; 
         
         let BORDER_SHOP = {};
+        let STICKER_GALLERY = [];
+        let USER_PRESETS = {};
+
+        const PIN_PACKAGES = {
+            'pin_10m': { name: '10 Minute Pin', emoji: '⏱️', price: 100 },
+            'pin_30m': { name: '30 Minute Pin', emoji: '⏳', price: 250 },
+            'pin_1h': { name: '1 Hour Pin', emoji: '⏰', price: 500 },
+        };
         let currentUserData = {};
+        let newSubmission = {
+            stickerUrl: null,
+            text: '',
+            type: 'Ordinary'
+        };
+        
+        const ACHIEVEMENTS = {
+            'first_step': { 'name': 'First Step', 'emoji': '🌱', 'desc': 'Get your first news submission approved.' },
+            'contributor': { 'name': 'Contributor', 'emoji': '✍️', 'desc': 'Get 10 news submissions approved.' },
+            'pillar': { 'name': 'Pillar', 'emoji': '🏛️', 'desc': 'Get 50 news submissions approved.' },
+            'legend': { 'name': 'Cinder Legend', 'emoji': '👑', 'desc': 'Get 100 news submissions approved.' },
+            'perfectionist': { 'name': 'Perfectionist', 'emoji': '✨', 'desc': 'Get 5 news approved in a row.' },
+            'trusted': { 'name': 'Trusted', 'emoji': '🛡️', 'desc': 'Reach 90% approval rate with at least 20 submissions.'},
+        };
+
+        const RANKS = [
+            { "name": "Master 👑", "req": "100+ Approved" },
+            { "name": "Diamond 💎", "req": "75-99 Approved" },
+            { "name": "Emerald ✨", "req": "50-74 Approved" },
+            { "name": "Gold 🥇", "req": "25-49 Approved" },
+            { "name": "Silver 🥈", "req": "10-24 Approved" },
+            { "name": "Bronze 🥉", "req": "1-9 Approved" },
+            { "name": "Rookie", "req": "0 Approved" }
+        ];
 
         // --- UI & NAVIGATION ---
-        window.showPage = (pageId, title) => {
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            
-            document.getElementById('header-title').textContent = title;
+        let headerTitle, backButton, mainNav;
+        let pageHistory = ['profile-page'];
 
-            document.querySelectorAll('.nav-icon').forEach(icon => icon.classList.remove('active-nav-icon'));
-            const button = Array.from(document.querySelectorAll('.nav-button')).find(btn => btn.getAttribute('onclick').includes(pageId));
-            if (button) {
-                button.querySelector('.nav-icon').classList.add('active-nav-icon');
+        window.showPage = (pageId, title) => {
+            const currentPage = pageHistory[pageHistory.length - 1];
+            if (pageId !== currentPage) {
+                pageHistory.push(pageId);
+            }
+
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            const newPage = document.getElementById(pageId);
+            if (newPage) newPage.classList.add('active');
+            
+            if (headerTitle) headerTitle.textContent = title;
+
+            const isSubPage = pageHistory.length > 1 && !['profile-page', 'submit-page', 'shop-page'].includes(pageId);
+            const isMainMenu = ['profile-page', 'submit-page', 'shop-page'].includes(pageId);
+
+            if (backButton) backButton.classList.toggle('hidden', !isSubPage);
+            if (mainNav) mainNav.classList.toggle('hidden', isSubPage && isMainMenu ? false : !isMainMenu);
+
+            if (isMainMenu) {
+                 pageHistory = [pageId];
+                 if(backButton) backButton.classList.add('hidden');
+                 if(pageId === 'submit-page') resetSubmissionFlow();
+
+                document.querySelectorAll('.nav-icon').forEach(icon => icon.classList.remove('active-nav-icon'));
+                const button = Array.from(document.querySelectorAll('.nav-button')).find(btn => btn.getAttribute('onclick').includes(pageId));
+                if (button) {
+                    button.querySelector('.nav-icon').classList.add('active-nav-icon');
+                }
             }
         };
 
+        const goBack = () => {
+            if (pageHistory.length > 1) {
+                pageHistory.pop();
+                const previousPageId = pageHistory[pageHistory.length - 1];
+                const pageTitles = {
+                    'profile-page': 'My Profile', 'submit-page': 'Submit News', 'shop-page': 'Shop',
+                    'achievements-page': 'All Achievements', 'ranks-page': 'All Ranks', 'transfer-page': 'Transfer Points',
+                    'shop-borders-page': 'Borders Shop', 'shop-pins-page': 'Pin Shop', 'gift-page': 'Gift an Item',
+                    'submit-presets-page': 'Load a Preset', 'submit-gallery-page': 'Sticker Gallery'
+                };
+                showPage(previousPageId, pageTitles[previousPageId]);
+            }
+        };
+        
         const showToast = (message, isError = false) => {
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toast-message');
+            if (!toast || !toastMessage) return;
             toastMessage.textContent = message;
             
             toast.className = 'fixed bottom-24 right-4 text-white py-2 px-5 rounded-lg shadow-xl transform transition-all duration-300 z-50';
@@ -202,15 +420,11 @@
                 toast.classList.add('translate-y-20', 'opacity-0');
             }, 3000);
         };
-        
-        // --- DATA LOGIC (Connects to Flask API) ---
-        async function fetchApi(endpoint, options = {}) {
-            // In a real mini-app, you would get initData from Telegram to securely identify the user.
-            // For now, we are just using a placeholder USER_ID.
+
+        // --- API & DATA HANDLING ---
+        async function fetchApi(endpoint, options = {}) { 
             const defaultOptions = {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
             };
             const response = await fetch(endpoint, { ...defaultOptions, ...options });
             if (!response.ok) {
@@ -219,44 +433,128 @@
             }
             return response.json();
         }
-
-        async function loadInitialData() {
-            try {
-                // Fetch shop data and user data in parallel
-                const [shopData, userData] = await Promise.all([
-                    fetchApi('/api/shop/borders'),
-                    fetchApi(`/api/user/${USER_ID}`)
-                ]);
-                
-                BORDER_SHOP = shopData;
-                currentUserData = userData;
-                
-                updateUIWithUserData(currentUserData);
-
-                // Hide skeleton and show content
-                document.getElementById('loading-skeleton').style.display = 'none';
-                document.getElementById('app-content').classList.remove('hidden');
-
-            } catch (error) {
-                console.error("Failed to load initial data:", error);
-                showToast("Could not load app data. Try refreshing.", true);
-            }
-        }
         
         const updateUIWithUserData = (userData) => {
             document.getElementById('profile-username').textContent = userData.username || `User ${userData.id}`;
             document.getElementById('profile-userid').textContent = `User ID: ${userData.id}`;
-            document.getElementById('profile-points').textContent = userData.points || 0;
+            document.getElementById('profile-rank').textContent = userData.rank || 'N/A';
+            document.getElementById('profile-points-display').textContent = `${userData.points || 0} CP`;
             document.getElementById('shop-points').textContent = `${userData.points || 0} CP`;
-            document.getElementById('profile-submissions').textContent = userData.submissionsCount || 0;
+            document.getElementById('transfer-points-balance').textContent = `${userData.points || 0} CP`;
 
+            renderSubmissionStats(userData.submissionStats);
+            renderAchievementsPreview(userData.achievements || []);
             renderOwnedBorders(userData.ownedBorders || [], userData.activeBorder);
-            renderShopItems(userData.ownedBorders || [], userData.points || 0);
+            
+            renderBorderShopItems(userData.ownedBorders || [], userData.points || 0);
+            renderPinShopItems(userData.points || 0);
+
+            renderAllAchievements(userData.achievements || []);
+            renderAllRanks(userData.rank);
+
+            renderPresetsForSelection();
+            renderStickerGallery();
+        };
+        
+        // --- UI RENDERING FUNCTIONS ---
+        const renderSubmissionStats = (stats) => {
+            const container = document.getElementById('profile-submission-stats');
+            if (!container || !stats) return;
+            container.innerHTML = '';
+            const statOrder = [
+                { key: 'approved', label: 'Approved', icon: 'check-circle', color: 'text-green-400' },
+                { key: 'rejected', label: 'Rejected', icon: 'x-circle', color: 'text-red-400' },
+                { key: 'pending', label: 'Pending', icon: 'loader-2', color: 'text-yellow-400' },
+                { key: 'deleted', label: 'Deleted', icon: 'trash-2', color: 'text-slate-400' },
+                { key: 'starred', label: 'Starred', icon: 'star', color: 'text-amber-400' },
+                { key: 'approvalRate', label: 'Approval Rate', icon: 'trending-up', color: 'text-sky-400', suffix: '%' },
+            ];
+            statOrder.forEach(item => {
+                const statEl = document.createElement('div');
+                statEl.className = 'bg-slate-800/50 p-3 rounded-lg flex items-center';
+                const value = (stats[item.key] !== undefined ? stats[item.key] : 0) + (item.suffix || '');
+                statEl.innerHTML = `
+                    <i data-lucide="${item.icon}" class="w-6 h-6 mr-3 ${item.color}"></i>
+                    <div>
+                        <p class="text-lg font-bold text-white">${value}</p>
+                        <p class="text-xs text-slate-400">${item.label}</p>
+                    </div>
+                `;
+                container.appendChild(statEl);
+            });
+            lucide.createIcons();
+        };
+
+        const renderAchievementsPreview = (unlockedIds) => {
+            const container = document.getElementById('profile-achievements-preview');
+            if (!container) return;
+            container.innerHTML = '';
+            if (!unlockedIds || unlockedIds.length === 0) {
+                 container.innerHTML = `<p class="text-sm text-slate-400 px-2">No achievements unlocked yet. Keep submitting news!</p>`;
+                 return;
+            }
+            unlockedIds.slice(0, 3).forEach(id => {
+                const ach = ACHIEVEMENTS[id];
+                if (ach) {
+                    const el = document.createElement('div');
+                    el.className = 'bg-slate-700/50 p-3 rounded-lg flex items-center';
+                    el.innerHTML = `
+                        <span class="text-2xl mr-3">${ach.emoji}</span>
+                        <div>
+                            <p class="font-semibold text-white">${ach.name}</p>
+                            <p class="text-xs text-slate-400">${ach.desc}</p>
+                        </div>
+                    `;
+                    container.appendChild(el);
+                }
+            });
+        };
+        
+        const renderAllAchievements = (unlockedIds) => {
+            const container = document.getElementById('achievements-list');
+            if (!container) return;
+            container.innerHTML = '';
+            Object.entries(ACHIEVEMENTS).forEach(([id, ach]) => {
+                const isUnlocked = unlockedIds && unlockedIds.includes(id);
+                const el = document.createElement('div');
+                el.className = `p-4 rounded-xl flex items-center transition-all ${isUnlocked ? 'bg-slate-800' : 'bg-slate-800/50 opacity-60'}`;
+                el.innerHTML = `
+                    <span class="text-4xl mr-4">${ach.emoji}</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-white">${ach.name}</p>
+                        <p class="text-sm text-slate-400">${ach.desc}</p>
+                    </div>
+                    ${isUnlocked ? '<i data-lucide="check-circle-2" class="w-6 h-6 text-green-400"></i>' : '<i data-lucide="lock" class="w-6 h-6 text-slate-500"></i>'}
+                `;
+                container.appendChild(el);
+            });
+            lucide.createIcons();
+        };
+
+        const renderAllRanks = (currentRankName) => {
+            const container = document.getElementById('ranks-list');
+            if (!container) return;
+            container.innerHTML = '';
+            RANKS.forEach(rank => {
+                const isCurrent = rank.name === currentRankName;
+                const el = document.createElement('div');
+                el.className = `p-4 rounded-xl transition-all border-2 ${isCurrent ? 'bg-slate-800 border-violet-500' : 'bg-slate-800/50 border-transparent'}`;
+                el.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <p class="text-xl font-bold text-white">${rank.name}</p>
+                        ${isCurrent ? '<span class="text-xs font-semibold bg-violet-500 text-white px-2 py-1 rounded-full">Your Rank</span>' : ''}
+                    </div>
+                    <p class="text-sm text-slate-400 mt-1">Requirement: ${rank.req}</p>
+                `;
+                container.appendChild(el);
+            });
         };
 
         const renderOwnedBorders = (ownedBorders, activeBorder) => {
             const listEl = document.getElementById('profile-borders-list');
+            if (!listEl) return;
             listEl.innerHTML = '';
+            ownedBorders = ownedBorders || [];
 
             const defaultBorder = document.createElement('div');
             const isDefaultActive = activeBorder === 'default' || !activeBorder;
@@ -288,26 +586,32 @@
             lucide.createIcons();
         };
         
-        const renderShopItems = (ownedBorders, userPoints) => {
+        const renderBorderShopItems = (ownedBorders, userPoints) => {
             const listEl = document.getElementById('shop-items-list');
+            if (!listEl) return;
             listEl.innerHTML = '';
+            ownedBorders = ownedBorders || [];
 
             Object.entries(BORDER_SHOP).forEach(([id, border]) => {
-                if(!border.price) return; // Don't show non-purchasable items like default
+                if(!border.price) return;
                 const item = document.createElement('div');
-                item.className = 'bg-slate-800 p-4 rounded-xl flex items-center justify-between transition-all hover:bg-slate-700/50';
+                item.className = 'bg-slate-800 p-4 rounded-xl flex items-center justify-between transition-all';
                 
                 const isOwned = ownedBorders.includes(id);
                 const canAfford = userPoints >= border.price;
                 
-                let buttonHtml;
+                let buttonsHtml = `
+                    <div class="flex items-center space-x-2">
+                        <button onclick="startGift('border', '${id}')" class="bg-slate-600 hover:bg-slate-500 text-white font-bold p-2 rounded-lg text-sm transition-colors"><i data-lucide="gift" class="w-5 h-5"></i></button>
+                `;
                 if(isOwned) {
-                    buttonHtml = `<button disabled class="bg-slate-600 text-slate-400 font-bold py-2 px-4 rounded-lg text-sm cursor-not-allowed flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2"></i>Owned</button>`;
+                    buttonsHtml += `<button disabled class="bg-slate-700 text-slate-400 font-bold py-2 px-3 rounded-lg text-sm cursor-not-allowed flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2"></i>Owned</button>`;
                 } else if (canAfford) {
-                    buttonHtml = `<button onclick="buyBorder('${id}')" class="bg-violet-500 hover:bg-violet-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors transform hover:scale-105">Buy</button>`;
+                    buttonsHtml += `<button onclick="buyBorder('${id}')" class="bg-violet-500 hover:bg-violet-600 text-white font-bold py-2 px-3 rounded-lg text-sm transition-colors">Buy</button>`;
                 } else {
-                    buttonHtml = `<button disabled class="bg-slate-700 text-slate-500 font-bold py-2 px-4 rounded-lg text-sm cursor-not-allowed">Buy</button>`;
+                    buttonsHtml += `<button disabled class="bg-slate-700 text-slate-500 font-bold py-2 px-3 rounded-lg text-sm cursor-not-allowed">Buy</button>`;
                 }
+                buttonsHtml += `</div>`;
                 
                 item.innerHTML = `
                     <div class="flex items-center">
@@ -317,90 +621,245 @@
                             <p class="text-sm text-violet-400 font-semibold">${border.price} CP</p>
                         </div>
                     </div>
-                    ${buttonHtml}
+                    ${buttonsHtml}
                 `;
                 listEl.appendChild(item);
             });
             lucide.createIcons();
         };
 
-        window.buyBorder = async (borderId) => {
-            try {
-                const result = await fetchApi(`/api/user/${USER_ID}/buy-border`, {
-                    method: 'POST',
-                    body: JSON.stringify({ border_id: borderId })
-                });
-                if(result.status === 'success') {
-                    showToast(`Successfully purchased ${BORDER_SHOP[borderId]?.name}!`);
-                    loadInitialData(); // Reload all data
+        const renderPinShopItems = (userPoints) => {
+            const listEl = document.getElementById('shop-pins-list');
+            if (!listEl) return;
+            listEl.innerHTML = '';
+            
+            Object.entries(PIN_PACKAGES).forEach(([id, pin]) => {
+                const item = document.createElement('div');
+                item.className = 'bg-slate-800 p-4 rounded-xl flex items-center justify-between transition-all';
+                const canAfford = userPoints >= pin.price;
+
+                let buttonsHtml = `
+                    <div class="flex items-center space-x-2">
+                         <button onclick="startGift('pin', '${id}')" class="bg-slate-600 hover:bg-slate-500 text-white font-bold p-2 rounded-lg text-sm transition-colors"><i data-lucide="gift" class="w-5 h-5"></i></button>
+                `;
+                if (canAfford) {
+                     buttonsHtml += `<button onclick="buyPin('${id}')" class="bg-violet-500 hover:bg-violet-600 text-white font-bold py-2 px-3 rounded-lg text-sm transition-colors">Buy</button>`;
+                } else {
+                     buttonsHtml += `<button disabled class="bg-slate-700 text-slate-500 font-bold py-2 px-3 rounded-lg text-sm cursor-not-allowed">Buy</button>`;
                 }
-            } catch(error) {
-                showToast(error.message || 'Purchase failed.', true);
-            }
-        };
+                 buttonsHtml += `</div>`;
 
-        window.equipBorder = async (borderId) => {
-            try {
-                const result = await fetchApi(`/api/user/${USER_ID}/equip-border`, {
-                    method: 'POST',
-                    body: JSON.stringify({ border_id: borderId })
-                });
-                if(result.status === 'success') {
-                    showToast(`Equipped ${BORDER_SHOP[borderId]?.name || 'Default'} border!`);
-                    currentUserData.activeBorder = borderId; // Optimistically update
-                    renderOwnedBorders(currentUserData.ownedBorders, currentUserData.activeBorder);
-                }
-            } catch (error) {
-                showToast(error.message || 'Error equipping border.', true);
-            }
-        };
-
-        document.getElementById('news-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const newsType = document.getElementById('news-type').value;
-            const newsText = document.getElementById('news-text').value.trim();
-            if (!newsText) return showToast('News content cannot be empty.', true);
-
-            try {
-                const result = await fetchApi('/api/submissions', {
-                    method: 'POST',
-                    body: JSON.stringify({ userId: USER_ID, type: newsType, text: newsText })
-                });
-                document.getElementById('news-text').value = '';
-                showToast('News submitted for review!');
-                loadInitialData(); // Refresh user data to update submission count
-            } catch (error) {
-                showToast(error.message || 'Failed to submit news.', true);
-            }
-        });
-
-        // --- INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', () => {
+                item.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="text-3xl mr-4">${pin.emoji}</span>
+                        <div>
+                            <p class="font-semibold text-white">${pin.name}</p>
+                            <p class="text-sm text-violet-400 font-semibold">${pin.price} CP</p>
+                        </div>
+                    </div>
+                    ${buttonsHtml}
+                `;
+                 listEl.appendChild(item);
+            });
             lucide.createIcons();
+        };
+
+        // --- NEW SUBMISSION FLOW RENDERERS ---
+        const renderPresetsForSelection = () => {
+            const container = document.getElementById('presets-selection-list');
+            container.innerHTML = ' <h3 class="text-lg font-semibold text-white px-2">Your Saved Presets</h3>';
+            Object.entries(USER_PRESETS).forEach(([id, preset]) => {
+                const el = document.createElement('button');
+                el.className = 'w-full bg-slate-800 hover:bg-slate-700/50 p-4 rounded-xl text-left transition-all flex items-center';
+                el.onclick = () => selectPreset(id);
+                el.innerHTML = `
+                    <img src="${preset.stickerUrl}" class="w-12 h-12 rounded-md mr-4" alt="Sticker">
+                    <div>
+                        <p class="font-bold text-white">${preset.name}</p>
+                        <p class="text-xs text-slate-400">${preset.text.substring(0, 40)}...</p>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+        };
+
+        const renderStickerGallery = () => {
+            const container = document.getElementById('gallery-selection-list');
+            container.innerHTML = '';
+            STICKER_GALLERY.forEach(sticker => {
+                const el = document.createElement('button');
+                el.className = 'bg-slate-800 p-2 rounded-lg aspect-square flex items-center justify-center hover:bg-slate-700 transition-colors';
+                el.onclick = () => selectSticker(sticker.url);
+                el.innerHTML = `<img src="${sticker.url}" alt="${sticker.name}" class="w-full h-full object-contain">`;
+                container.appendChild(el);
+            });
+        };
+
+        const generateNewsPreview = () => {
+            const previewContainer = document.getElementById('news-preview');
+            newSubmission.text = document.getElementById('news-text').value;
+            newSubmission.type = document.getElementById('news-type').value;
+
+            let borderText = BORDER_SHOP['default_ordinary']?.border_text; 
+            if (currentUserData.activeBorder && BORDER_SHOP[currentUserData.activeBorder]) {
+                const borderKey = newSubmission.type === 'Sinners' ? (BORDER_SHOP[currentUserData.activeBorder]?.sinner_equiv || currentUserData.activeBorder) : currentUserData.activeBorder;
+                borderText = BORDER_SHOP[borderKey]?.border_text || BORDER_SHOP['default_ordinary']?.border_text;
+            }
+            
+            previewContainer.innerHTML = `
+                <div class="flex items-start space-x-4">
+                    <img src="${newSubmission.stickerUrl}" class="w-16 h-16 rounded-lg shrink-0" alt="Selected Sticker">
+                    <div class="flex-grow">
+                        <p class="text-white whitespace-pre-wrap">${newSubmission.text}</p>
+                        <p class="text-sm text-slate-400 whitespace-pre-wrap mt-2 opacity-70">${borderText}</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('submit-preview-section').classList.remove('hidden');
+            document.getElementById('final-submit-btn').classList.remove('hidden');
+        };
+        
+        // --- ACTIONS & EVENT HANDLERS ---
+        window.buyBorder = async (borderId) => { /* ... Unchanged ... */ };
+        window.buyPin = (pinId) => {
+            const pin = PIN_PACKAGES[pinId];
+            showToast(`Purchased ${pin.name}!`);
+            currentUserData.points -= pin.price;
+            updateUIWithUserData(currentUserData);
+        };
+        
+        window.startGift = (itemType, itemId) => {
+            const item = itemType === 'border' ? BORDER_SHOP[itemId] : PIN_PACKAGES[itemId];
+            document.getElementById('gift-item-name').textContent = `${item.emoji} ${item.name} (${item.price} CP)`;
+            const giftForm = document.getElementById('gift-form');
+            giftForm.dataset.itemType = itemType;
+            giftForm.dataset.itemId = itemId;
+            
+            showPage('gift-page', 'Gift an Item');
+        };
+
+        window.equipBorder = async (borderId) => { /* ... Unchanged ... */ };
+
+        // --- NEW SUBMISSION FLOW ACTIONS ---
+        const selectPreset = (presetId) => {
+            const preset = USER_PRESETS[presetId];
+            newSubmission.stickerUrl = preset.stickerUrl;
+            document.getElementById('news-text').value = preset.text;
+            document.getElementById('news-type').value = preset.type;
+            showPage('submit-page', 'Submit News');
+            document.getElementById('submit-step-1').classList.add('hidden');
+            document.getElementById('submit-step-2').classList.remove('hidden');
+        };
+
+        const selectSticker = (stickerUrl) => {
+            newSubmission.stickerUrl = stickerUrl;
+            showPage('submit-page', 'Submit News');
+            document.getElementById('submit-step-1').classList.add('hidden');
+            document.getElementById('submit-step-2').classList.remove('hidden');
+        };
+
+        const resetSubmissionFlow = () => {
+            newSubmission = { stickerUrl: null, text: '', type: 'Ordinary' };
+            document.getElementById('submit-step-1').classList.remove('hidden');
+            document.getElementById('submit-step-2').classList.add('hidden');
+            document.getElementById('submit-preview-section').classList.add('hidden');
+            document.getElementById('final-submit-btn').classList.add('hidden');
+            document.getElementById('news-form-content').reset();
+            document.getElementById('news-preview').innerHTML = '';
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Element assignments
+            headerTitle = document.getElementById('header-title');
+            backButton = document.getElementById('back-button');
+            mainNav = document.getElementById('main-nav');
+            
+            lucide.createIcons();
+
+            // SETUP EVENT LISTENERS
+            backButton.addEventListener('click', goBack);
+            
+            document.getElementById('generate-preview-btn').addEventListener('click', generateNewsPreview);
+            
+            document.getElementById('final-submit-btn').addEventListener('click', () => {
+                console.log('Final submission:', newSubmission);
+                showToast('News submitted for review!');
+                showPage('profile-page', 'My Profile');
+                resetSubmissionFlow();
+            });
+
+            document.getElementById('transfer-form')?.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const recipient = form.querySelector('#transfer-recipient').value.trim();
+                const amountInput = form.querySelector('#transfer-amount');
+                const message = form.querySelector('#transfer-message').value.trim();
+                const amount = parseInt(amountInput.value);
+
+                if (!recipient || !amount || amount <= 0) {
+                    return showToast('Please enter a valid recipient and amount.', true);
+                }
+                if (amount > currentUserData.points) {
+                    return showToast('You do not have enough points to transfer.', true);
+                }
+
+                console.log(`Transferring ${amount} points to ${recipient} with message: "${message}"`);
+                showToast(`Successfully transferred ${amount} CP to ${recipient}!`);
+                
+                currentUserData.points -= amount;
+                updateUIWithUserData(currentUserData);
+                showPage('profile-page', 'My Profile');
+                form.reset();
+            });
+            
+            document.getElementById('gift-form')?.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const recipient = form.querySelector('#gift-recipient').value.trim();
+                const message = form.querySelector('#gift-message').value.trim();
+                const { itemType, itemId } = form.dataset;
+                
+                if (!recipient) { return showToast('Please enter a recipient.', true); }
+                const item = itemType === 'border' ? BORDER_SHOP[itemId] : PIN_PACKAGES[itemId];
+                if (item.price > currentUserData.points) { return showToast('You do not have enough points for this gift.', true); }
+
+                console.log(`Gifting ${item.name} to ${recipient} with message: "${message}"`);
+                showToast(`Gift sent to ${recipient}!`);
+                
+                currentUserData.points -= item.price;
+                updateUIWithUserData(currentUserData);
+                showPage('shop-page', 'Shop');
+                form.reset();
+            });
+
+            // INITIAL PAGE LOAD
             showPage('profile-page', 'My Profile');
-            // Simulate a network delay for the loading skeleton
-            setTimeout(() => {
-                // In a real app, this would be where you fetch data.
-                // For now, we'll just populate with dummy data.
-                 const dummyUserData = {
-                    id: USER_ID,
-                    username: 'dastekhar',
-                    points: 1250,
-                    submissionsCount: 42,
-                    ownedBorders: ['default', 'moon', 'leaf'],
-                    activeBorder: 'moon'
+            
+            setTimeout(() => { // Dummy data loading
+                currentUserData = {
+                    id: USER_ID, username: 'dastekhar', rank: 'Gold 🥇', points: 1250,
+                    submissionStats: { approved: 28, rejected: 5, pending: 2, deleted: 3, starred: 7, approvalRate: 85 },
+                    achievements: ['first_step', 'contributor'], ownedBorders: ['default', 'moon', 'leaf'], activeBorder: 'moon'
                 };
-                 BORDER_SHOP = { // Dummy shop data
-                    'moon': { 'name': 'Moonlit Night', 'emoji': '🌙', 'price': 500, 'border_text': "┄─━ ☽ ✧ ☾ ━─┄" },
-                    'leaf': { 'name': 'Green Leaf', 'emoji': '🌿', 'price': 750, 'border_text': "~-ˋˏ ༻🌿༺ ˎˊ-~" },
-                    'sparkles': { 'name': 'Sparkle Shine', 'emoji': '✨', 'price': 500, 'border_text': "‧₊˚✩彡✨彡✩˚₊‧" }
+                 BORDER_SHOP = {
+                    'default_ordinary': { 'border_text': "┄ ───╌ ⟡ ╌─── ┄\n𑑍 CinderNews.t.me ." },
+                    'moon': { 'name': 'Moonlit Night', 'emoji': '🌙', 'price': 500, 'border_text': "┄─━ ☽ ✧ ☾ ━─┄\n𑑍 CinderNews.t.me ." },
+                    'leaf': { 'name': 'Green Leaf', 'emoji': '🌿', 'price': 750, 'border_text': "~-ˋˏ ༻🌿༺ ˎˊ-~\n𑑍 CinderNews.t.me ." },
+                    'sparkles': { 'name': 'Sparkle Shine', 'emoji': '✨', 'price': 500, 'border_text': "‧₊˚✩彡✨彡✩˚₊‧\n𑑍 CinderNews.t.me ." }
                  };
-                updateUIWithUserData(dummyUserData);
+                 STICKER_GALLERY = [
+                     { name: 'Sticker 1', url: 'https://placehold.co/128x128/1e293b/94a3b8?text=Sticker1' },
+                     { name: 'Sticker 2', url: 'https://placehold.co/128x128/1e293b/94a3b8?text=Sticker2' },
+                     { name: 'Sticker 3', url: 'https://placehold.co/128x128/1e293b/94a3b8?text=Sticker3' },
+                     { name: 'Sticker 4', url: 'https://placehold.co/128x128/1e293b/94a3b8?text=Sticker4' },
+                 ];
+                 USER_PRESETS = {
+                     'preset1': { name: 'My Favorite News', stickerUrl: 'https://placehold.co/128x128/8b5cf6/ffffff?text=Preset1', text: 'This is my saved news text for preset 1.', type: 'Ordinary' },
+                     'preset2': { name: 'Evening Thoughts', stickerUrl: 'https://placehold.co/128x128/8b5cf6/ffffff?text=Preset2', text: 'Another saved preset for quick submissions.', type: 'Sinners' },
+                 };
+                updateUIWithUserData(currentUserData);
                 document.getElementById('loading-skeleton').style.display = 'none';
                 document.getElementById('app-content').classList.remove('hidden');
-
-                // If you want to test with the Flask API, comment out the dummy data above and uncomment this line:
-                // loadInitialData();
             }, 1000);
         });
     </script>
