@@ -35,7 +35,7 @@
                 
                 const submissionData = {
                     newsType: preset.news_type,
-                    stickerFileId: stickerPart ? stickerPart.sticker.file_id : null,
+                    stickerFileId: stickerPart ? stickerPart.sticker : null, // Corrected line
                     text: textPart ? (textPart.text || textPart.caption) : '',
                     enableAnonReply: preset.anonymous_replies_enabled === 1
                 };
@@ -43,6 +43,7 @@
                 tg.showConfirm(`Submit the preset "${preset.name}"?`, (isConfirmed) => {
                     if (isConfirmed) {
                         tg.sendData(JSON.stringify(submissionData));
+                        // The app will close after sending data
                     }
                 });
             });
@@ -51,7 +52,6 @@
         });
     }
 
-    // This is the new logic to load data on startup
     tg.ready(() => {
         tg.expand();
         try {
@@ -65,8 +65,7 @@
                 const presets = JSON.parse(presetsJson);
                 populatePresets(presets);
             } else {
-                // Handle case where app is opened without data
-                messageArea.textContent = 'Could not load data. Please open the app from the bot.';
+                messageArea.textContent = 'Could not load data. Please open the app using the /presets command in the bot.';
             }
         } catch (e) {
             tg.showAlert(`Error processing initial data: ${e}`);
