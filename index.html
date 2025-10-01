@@ -8,113 +8,138 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        :root {
+            --bg-color: #0f172a; /* slate-900 */
+            --card-color: #1e293b; /* slate-800 */
+            --border-color: #334155; /* slate-700 */
+            --accent-color: #8b5cf6; /* violet-500 */
+            --accent-hover-color: #7c3aed; /* violet-600 */
+            --text-primary: #e2e8f0; /* slate-200 */
+            --text-secondary: #94a3b8; /* slate-400 */
+        }
         body {
             font-family: 'Inter', sans-serif;
             overscroll-behavior: none;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
         }
         .active-nav-icon {
-            color: #f59e0b; /* amber-500 */
+            color: var(--accent-color);
         }
         .page {
             display: none;
+            animation: fadeIn 0.5s ease-in-out;
         }
         .page.active {
             display: block;
         }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         /* Custom scrollbar for better aesthetics */
-        ::-webkit-scrollbar {
-            width: 6px;
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
         }
-        ::-webkit-scrollbar-track {
-            background: #1f2937; /* gray-800 */
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #4b5563; /* gray-600 */
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6b7280; /* gray-500 */
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 flex flex-col h-screen antialiased">
+<body class="flex flex-col h-screen antialiased">
 
-    <!-- Header -->
-    <header class="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 p-4 fixed top-0 left-0 right-0 z-10">
-        <h1 id="header-title" class="text-xl font-bold text-center text-white">My Profile</h1>
+    <!-- Header with Glassmorphism Effect -->
+    <header class="bg-slate-900/70 backdrop-blur-lg border-b border-slate-700/50 p-4 fixed top-0 left-0 right-0 z-10">
+        <h1 id="header-title" class="text-xl font-bold text-center text-slate-100"></h1>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto pt-20 pb-20">
-        <div class="container mx-auto px-4 max-w-2xl">
+    <main class="flex-1 overflow-y-auto pt-20 pb-24">
+        <div id="app-container" class="container mx-auto px-4 max-w-2xl">
+            <!-- Loading Skeletons -->
+            <div id="loading-skeleton">
+                <!-- Profile Page Skeleton -->
+                <div id="profile-page-skeleton">
+                    <div class="bg-slate-800 p-6 rounded-2xl shadow-lg mb-6 flex flex-col items-center shimmer">
+                        <div class="w-24 h-24 rounded-full bg-slate-700 mb-4"></div>
+                        <div class="h-8 w-40 bg-slate-700 rounded-md mb-2"></div>
+                        <div class="h-4 w-60 bg-slate-700 rounded-md"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-slate-800 p-4 rounded-xl h-24 shimmer"></div>
+                        <div class="bg-slate-800 p-4 rounded-xl h-24 shimmer"></div>
+                    </div>
+                </div>
+            </div>
 
-            <!-- Profile Page -->
-            <div id="profile-page" class="page active">
-                <div class="bg-gray-800 p-6 rounded-2xl shadow-lg mb-6 text-center">
-                    <div class="flex justify-center mb-4">
-                        <div class="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center">
-                            <i data-lucide="user" class="w-12 h-12 text-gray-500"></i>
+            <!-- Actual Content (hidden initially) -->
+            <div id="app-content" class="hidden">
+                <!-- Profile Page -->
+                <div id="profile-page" class="page">
+                    <div class="bg-slate-800 p-6 rounded-2xl shadow-lg mb-6 text-center">
+                        <div class="flex justify-center mb-4">
+                            <div class="w-24 h-24 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center ring-4 ring-slate-700">
+                                <i data-lucide="user" class="w-12 h-12 text-white/80"></i>
+                            </div>
+                        </div>
+                        <h2 id="profile-username" class="text-2xl font-bold text-white"></h2>
+                        <p id="profile-userid" class="text-xs text-slate-400 font-mono mt-1"></p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-slate-800 p-4 rounded-xl text-center">
+                            <p class="text-sm text-slate-400">Cinder Points</p>
+                            <p id="profile-points" class="text-2xl font-bold text-violet-400"></p>
+                        </div>
+                        <div class="bg-slate-800 p-4 rounded-xl text-center">
+                            <p class="text-sm text-slate-400">Submissions</p>
+                            <p id="profile-submissions" class="text-2xl font-bold text-white"></p>
                         </div>
                     </div>
-                    <h2 id="profile-username" class="text-2xl font-bold text-white">Loading...</h2>
-                    <p id="profile-userid" class="text-sm text-gray-400 font-mono"></p>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="bg-gray-800 p-4 rounded-xl text-center">
-                        <p class="text-sm text-gray-400">Cinder Points</p>
-                        <p id="profile-points" class="text-2xl font-bold text-amber-400">0</p>
-                    </div>
-                    <div class="bg-gray-800 p-4 rounded-xl text-center">
-                        <p class="text-sm text-gray-400">Submissions</p>
-                        <p id="profile-submissions" class="text-2xl font-bold text-white">0</p>
+
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3 text-white">My Borders</h3>
+                        <div id="profile-borders-list" class="grid grid-cols-2 sm:grid-cols-3 gap-4"></div>
                     </div>
                 </div>
 
-                <div>
-                    <h3 class="text-lg font-semibold mb-3 text-white">My Borders</h3>
-                    <div id="profile-borders-list" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        <!-- Borders will be loaded here -->
-                        <div class="bg-gray-800 p-4 rounded-xl animate-pulse h-24"></div>
-                        <div class="bg-gray-800 p-4 rounded-xl animate-pulse h-24"></div>
+                <!-- Submit News Page -->
+                <div id="submit-page" class="page">
+                    <form id="news-form" class="space-y-6">
+                        <div>
+                            <label for="news-type" class="block text-sm font-medium text-slate-300 mb-2">News Type</label>
+                            <select id="news-type" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3 focus:ring-violet-500 focus:border-violet-500 transition">
+                                <option value="Ordinary">Ordinary 🌪</option>
+                                <option value="Sinners">Sinners ⛓</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="news-text" class="block text-sm font-medium text-slate-300 mb-2">News Content</label>
+                            <textarea id="news-text" rows="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3 focus:ring-violet-500 focus:border-violet-500 transition" placeholder="Type your news here..."></textarea>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full bg-violet-500 hover:bg-violet-600 text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105">Submit News</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Shop Page -->
+                <div id="shop-page" class="page">
+                     <div class="bg-slate-800 p-4 rounded-xl mb-6 flex justify-between items-center">
+                        <span class="text-slate-400">Your Balance:</span>
+                        <span id="shop-points" class="text-xl font-bold text-violet-400"></span>
                     </div>
+                    <div id="shop-items-list" class="space-y-3"></div>
                 </div>
             </div>
-
-            <!-- Submit News Page -->
-            <div id="submit-page" class="page">
-                <form id="news-form" class="space-y-6">
-                    <div>
-                        <label for="news-type" class="block text-sm font-medium text-gray-300 mb-2">News Type</label>
-                        <select id="news-type" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3 focus:ring-amber-500 focus:border-amber-500">
-                            <option value="Ordinary">Ordinary 🌪</option>
-                            <option value="Sinners">Sinners ⛓</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="news-text" class="block text-sm font-medium text-gray-300 mb-2">News Content</label>
-                        <textarea id="news-text" rows="8" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3 focus:ring-amber-500 focus:border-amber-500" placeholder="Type your news here..."></textarea>
-                    </div>
-                    <div>
-                        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-3 px-4 rounded-lg transition-colors duration-200">Submit News</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Shop Page -->
-            <div id="shop-page" class="page">
-                 <div class="bg-gray-800 p-4 rounded-xl mb-6 flex justify-between items-center">
-                    <span class="text-gray-400">Your Balance:</span>
-                    <span id="shop-points" class="text-xl font-bold text-amber-400">0 CP</span>
-                </div>
-                <div id="shop-items-list" class="space-y-4">
-                    <!-- Shop items will be loaded here -->
-                    <div class="bg-gray-800 p-4 rounded-xl animate-pulse h-20"></div>
-                    <div class="bg-gray-800 p-4 rounded-xl animate-pulse h-20"></div>
-                    <div class="bg-gray-800 p-4 rounded-xl animate-pulse h-20"></div>
-                </div>
-            </div>
-
         </div>
     </main>
     
@@ -123,49 +148,32 @@
         <p id="toast-message"></p>
     </div>
 
-    <!-- Bottom Navigation -->
-    <nav class="bg-gray-800/50 backdrop-blur-sm border-t border-gray-700 p-4 fixed bottom-0 left-0 right-0">
+    <!-- Bottom Navigation with Glassmorphism Effect -->
+    <nav class="bg-slate-900/70 backdrop-blur-lg border-t border-slate-700/50 p-2 fixed bottom-0 left-0 right-0">
         <div class="flex justify-around max-w-2xl mx-auto">
-            <button onclick="showPage('profile-page', 'My Profile')" class="nav-button flex flex-col items-center text-gray-400">
+            <button onclick="showPage('profile-page', 'My Profile')" class="nav-button flex flex-col items-center text-slate-400 p-2 rounded-lg w-20 transition-colors">
                 <i data-lucide="user-circle" class="nav-icon active-nav-icon w-6 h-6"></i>
                 <span class="text-xs mt-1">Profile</span>
             </button>
-            <button onclick="showPage('submit-page', 'Submit News')" class="nav-button flex flex-col items-center text-gray-400">
+            <button onclick="showPage('submit-page', 'Submit News')" class="nav-button flex flex-col items-center text-slate-400 p-2 rounded-lg w-20 transition-colors">
                 <i data-lucide="file-plus-2" class="nav-icon w-6 h-6"></i>
                 <span class="text-xs mt-1">Submit</span>
             </button>
-            <button onclick="showPage('shop-page', 'Shop')" class="nav-button flex flex-col items-center text-gray-400">
+            <button onclick="showPage('shop-page', 'Shop')" class="nav-button flex flex-col items-center text-slate-400 p-2 rounded-lg w-20 transition-colors">
                 <i data-lucide="shopping-cart" class="nav-icon w-6 h-6"></i>
                 <span class="text-xs mt-1">Shop</span>
             </button>
         </div>
     </nav>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        // These are placeholders for your Firebase configuration.
-        // In a real environment, these would be securely provided.
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "AIza...", authDomain: "...", projectId: "...", ...{}};
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, onSnapshot, serverTimestamp, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-        let app, auth, db, userId;
-
-        // --- BORDER SHOP DATA (Mirrors your Python code) ---
-        const BORDER_SHOP = {
-            'moon': { 'name': 'Moonlit Night', 'emoji': '🌙', 'price': 500, 'border_text': "┄─━ ☽ ✧ ☾ ━─┄" },
-            'leaf': { 'name': 'Green Leaf', 'emoji': '🌿', 'price': 750, 'border_text': "~-ˋˏ ༻🌿༺ ˎˊ-~" },
-            'sparkles': { 'name': 'Sparkle Shine', 'emoji': '✨', 'price': 500, 'border_text': "‧₊˚✩彡✨彡✩˚₊‧" },
-            'web': { 'name': 'Spider Web', 'emoji': '🕸️', 'price': 750, 'border_text': "· ─── ·∙· 🕸️ ·∙· ─── ·" },
-            'ice': { 'name': 'Frozen Crystals', 'emoji': '❄️', 'price': 1000, 'border_text': "«- · ─ ─ ❄️ ─ ─ · -»" },
-            'thorned_heart': { 'name': 'Thorned Heart', 'emoji': '🥀', 'price': 1000, 'border_text': "───「 🥀 」───" },
-            'hearts': { 'name': 'Sweet Heart', 'emoji': '♡', 'price': 750, 'border_text': "❧─── ∘ ♡ ∘ ───❧" },
-            'angelic_cross': { 'name': 'Cursed Cross', 'emoji': '♱', 'price': 750, 'border_text': "ʚ — · —  ♱  — · — ɞ" },
-        };
+    <script>
+        // --- CONFIGURATION (PLACEHOLDER) ---
+        // Once your Flask backend is live, the fetch calls below will work.
+        // For local testing, you can use a test user ID from your database.
+        const USER_ID = 123456789; // <-- !!! REPLACE WITH A REAL USER ID FOR TESTING !!!
+        
+        let BORDER_SHOP = {};
+        let currentUserData = {};
 
         // --- UI & NAVIGATION ---
         window.showPage = (pageId, title) => {
@@ -186,12 +194,8 @@
             const toastMessage = document.getElementById('toast-message');
             toastMessage.textContent = message;
             
-            toast.className = 'fixed bottom-24 right-4 text-white py-2 px-5 rounded-lg shadow-xl transform transition-all duration-300';
-            if(isError) {
-                toast.classList.add('bg-red-500');
-            } else {
-                toast.classList.add('bg-green-500');
-            }
+            toast.className = 'fixed bottom-24 right-4 text-white py-2 px-5 rounded-lg shadow-xl transform transition-all duration-300 z-50';
+            toast.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
 
             toast.classList.remove('translate-y-20', 'opacity-0');
             setTimeout(() => {
@@ -199,58 +203,49 @@
             }, 3000);
         };
         
-        // --- FIREBASE & DATA LOGIC ---
-        const initFirebase = async () => {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    userId = user.uid;
-                    document.getElementById('profile-userid').textContent = `User ID: ${userId}`;
-                    
-                    // Setup real-time listener for user data
-                    const userDocRef = doc(db, `artifacts/${appId}/users`, userId);
-                    onSnapshot(userDocRef, (docSnap) => {
-                        if (docSnap.exists()) {
-                            const userData = docSnap.data();
-                            updateUIWithUserData(userData);
-                        } else {
-                            // Create a new user profile if it doesn't exist
-                            const newUserData = {
-                                username: user.displayName || 'Anonymous User',
-                                points: 100, // Starting points
-                                submissionsCount: 0,
-                                ownedBorders: ['default'],
-                                activeBorder: 'default',
-                                createdAt: serverTimestamp(),
-                            };
-                            setDoc(userDocRef, newUserData).then(() => {
-                                updateUIWithUserData(newUserData);
-                            });
-                        }
-                    });
-
-                } else {
-                    console.log("No user signed in.");
-                }
-            });
-            
-            try {
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.error("Authentication failed:", error);
+        // --- DATA LOGIC (Connects to Flask API) ---
+        async function fetchApi(endpoint, options = {}) {
+            // In a real mini-app, you would get initData from Telegram to securely identify the user.
+            // For now, we are just using a placeholder USER_ID.
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+            const response = await fetch(endpoint, { ...defaultOptions, ...options });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Network response was not ok.');
             }
-        };
+            return response.json();
+        }
 
+        async function loadInitialData() {
+            try {
+                // Fetch shop data and user data in parallel
+                const [shopData, userData] = await Promise.all([
+                    fetchApi('/api/shop/borders'),
+                    fetchApi(`/api/user/${USER_ID}`)
+                ]);
+                
+                BORDER_SHOP = shopData;
+                currentUserData = userData;
+                
+                updateUIWithUserData(currentUserData);
+
+                // Hide skeleton and show content
+                document.getElementById('loading-skeleton').style.display = 'none';
+                document.getElementById('app-content').classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Failed to load initial data:", error);
+                showToast("Could not load app data. Try refreshing.", true);
+            }
+        }
+        
         const updateUIWithUserData = (userData) => {
-            // Update all relevant parts of the UI
-            document.getElementById('profile-username').textContent = userData.username || 'Anonymous User';
+            document.getElementById('profile-username').textContent = userData.username || `User ${userData.id}`;
+            document.getElementById('profile-userid').textContent = `User ID: ${userData.id}`;
             document.getElementById('profile-points').textContent = userData.points || 0;
             document.getElementById('shop-points').textContent = `${userData.points || 0} CP`;
             document.getElementById('profile-submissions').textContent = userData.submissionsCount || 0;
@@ -258,18 +253,18 @@
             renderOwnedBorders(userData.ownedBorders || [], userData.activeBorder);
             renderShopItems(userData.ownedBorders || [], userData.points || 0);
         };
-        
+
         const renderOwnedBorders = (ownedBorders, activeBorder) => {
             const listEl = document.getElementById('profile-borders-list');
             listEl.innerHTML = '';
 
             const defaultBorder = document.createElement('div');
             const isDefaultActive = activeBorder === 'default' || !activeBorder;
-            defaultBorder.className = `bg-gray-800 p-4 rounded-xl flex flex-col items-center justify-center cursor-pointer border-2 ${isDefaultActive ? 'border-amber-500' : 'border-transparent'}`;
+            defaultBorder.className = `bg-slate-800 p-4 rounded-xl flex flex-col items-center justify-center cursor-pointer border-2 transition-all ${isDefaultActive ? 'border-violet-500 shadow-lg shadow-violet-500/10' : 'border-transparent hover:border-slate-600'}`;
             defaultBorder.innerHTML = `
-                <i data-lucide="shield-off" class="w-8 h-8 mb-2"></i>
+                <i data-lucide="shield-off" class="w-8 h-8 mb-2 text-slate-400"></i>
                 <span class="text-sm font-semibold">Default</span>
-                ${isDefaultActive ? '<span class="text-xs text-amber-400">Equipped</span>' : ''}
+                ${isDefaultActive ? '<span class="text-xs text-violet-400 mt-1">Equipped</span>' : ''}
             `;
             defaultBorder.onclick = () => equipBorder('default');
             listEl.appendChild(defaultBorder);
@@ -281,11 +276,11 @@
 
                 const card = document.createElement('div');
                 const isActive = activeBorder === borderId;
-                card.className = `bg-gray-800 p-4 rounded-xl flex flex-col items-center justify-center cursor-pointer border-2 ${isActive ? 'border-amber-500' : 'border-transparent'}`;
+                card.className = `bg-slate-800 p-4 rounded-xl flex flex-col items-center justify-center cursor-pointer border-2 transition-all ${isActive ? 'border-violet-500 shadow-lg shadow-violet-500/10' : 'border-transparent hover:border-slate-600'}`;
                 card.innerHTML = `
                     <span class="text-3xl mb-2">${border.emoji}</span>
                     <span class="text-sm font-semibold text-center">${border.name}</span>
-                    ${isActive ? '<span class="text-xs text-amber-400 mt-1">Equipped</span>' : ''}
+                    ${isActive ? '<span class="text-xs text-violet-400 mt-1">Equipped</span>' : ''}
                 `;
                 card.onclick = () => equipBorder(borderId);
                 listEl.appendChild(card);
@@ -298,19 +293,20 @@
             listEl.innerHTML = '';
 
             Object.entries(BORDER_SHOP).forEach(([id, border]) => {
+                if(!border.price) return; // Don't show non-purchasable items like default
                 const item = document.createElement('div');
-                item.className = 'bg-gray-800 p-4 rounded-xl flex items-center justify-between';
+                item.className = 'bg-slate-800 p-4 rounded-xl flex items-center justify-between transition-all hover:bg-slate-700/50';
                 
                 const isOwned = ownedBorders.includes(id);
                 const canAfford = userPoints >= border.price;
                 
                 let buttonHtml;
                 if(isOwned) {
-                    buttonHtml = `<button disabled class="bg-gray-600 text-gray-400 font-bold py-2 px-4 rounded-lg text-sm cursor-not-allowed">Owned</button>`;
+                    buttonHtml = `<button disabled class="bg-slate-600 text-slate-400 font-bold py-2 px-4 rounded-lg text-sm cursor-not-allowed flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2"></i>Owned</button>`;
                 } else if (canAfford) {
-                    buttonHtml = `<button onclick="buyBorder('${id}')" class="bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-2 px-4 rounded-lg text-sm transition-colors">Buy</button>`;
+                    buttonHtml = `<button onclick="buyBorder('${id}')" class="bg-violet-500 hover:bg-violet-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors transform hover:scale-105">Buy</button>`;
                 } else {
-                    buttonHtml = `<button disabled class="bg-gray-700 text-gray-500 font-bold py-2 px-4 rounded-lg text-sm cursor-not-allowed">Buy</button>`;
+                    buttonHtml = `<button disabled class="bg-slate-700 text-slate-500 font-bold py-2 px-4 rounded-lg text-sm cursor-not-allowed">Buy</button>`;
                 }
                 
                 item.innerHTML = `
@@ -318,91 +314,96 @@
                         <span class="text-3xl mr-4">${border.emoji}</span>
                         <div>
                             <p class="font-semibold text-white">${border.name}</p>
-                            <p class="text-sm text-amber-400 font-semibold">${border.price} CP</p>
+                            <p class="text-sm text-violet-400 font-semibold">${border.price} CP</p>
                         </div>
                     </div>
                     ${buttonHtml}
                 `;
                 listEl.appendChild(item);
             });
+            lucide.createIcons();
         };
 
         window.buyBorder = async (borderId) => {
-            if (!userId) return;
-            const border = BORDER_SHOP[borderId];
-            if (!border) return;
-
-            const userDocRef = doc(db, `artifacts/${appId}/users`, userId);
-            const userDoc = await getDoc(userDocRef);
-            if(userDoc.exists()) {
-                const userData = userDoc.data();
-                if (userData.points >= border.price && !userData.ownedBorders.includes(borderId)) {
-                    await updateDoc(userDocRef, {
-                        points: userData.points - border.price,
-                        ownedBorders: arrayUnion(borderId)
-                    });
-                    showToast(`Successfully purchased ${border.name}!`);
-                } else {
-                     showToast("You either own this already or can't afford it.", true);
+            try {
+                const result = await fetchApi(`/api/user/${USER_ID}/buy-border`, {
+                    method: 'POST',
+                    body: JSON.stringify({ border_id: borderId })
+                });
+                if(result.status === 'success') {
+                    showToast(`Successfully purchased ${BORDER_SHOP[borderId]?.name}!`);
+                    loadInitialData(); // Reload all data
                 }
+            } catch(error) {
+                showToast(error.message || 'Purchase failed.', true);
             }
         };
 
         window.equipBorder = async (borderId) => {
-            if (!userId) return;
-            const userDocRef = doc(db, `artifacts/${appId}/users`, userId);
-            await updateDoc(userDocRef, { activeBorder: borderId });
-            showToast(`Equipped ${BORDER_SHOP[borderId]?.name || 'Default'} border!`);
+            try {
+                const result = await fetchApi(`/api/user/${USER_ID}/equip-border`, {
+                    method: 'POST',
+                    body: JSON.stringify({ border_id: borderId })
+                });
+                if(result.status === 'success') {
+                    showToast(`Equipped ${BORDER_SHOP[borderId]?.name || 'Default'} border!`);
+                    currentUserData.activeBorder = borderId; // Optimistically update
+                    renderOwnedBorders(currentUserData.ownedBorders, currentUserData.activeBorder);
+                }
+            } catch (error) {
+                showToast(error.message || 'Error equipping border.', true);
+            }
         };
-        
+
         document.getElementById('news-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (!userId) {
-                showToast('You must be logged in to submit news.', true);
-                return;
-            }
-
             const newsType = document.getElementById('news-type').value;
             const newsText = document.getElementById('news-text').value.trim();
-
-            if (!newsText) {
-                showToast('News content cannot be empty.', true);
-                return;
-            }
+            if (!newsText) return showToast('News content cannot be empty.', true);
 
             try {
-                const submissionsColRef = collection(db, `artifacts/${appId}/submissions`);
-                await addDoc(submissionsColRef, {
-                    userId: userId,
-                    type: newsType,
-                    text: newsText,
-                    status: 'pending',
-                    createdAt: serverTimestamp()
+                const result = await fetchApi('/api/submissions', {
+                    method: 'POST',
+                    body: JSON.stringify({ userId: USER_ID, type: newsType, text: newsText })
                 });
-                
-                // Also update user's submission count
-                const userDocRef = doc(db, `artifacts/${appId}/users`, userId);
-                const userDoc = await getDoc(userDocRef);
-                if(userDoc.exists()) {
-                    const currentCount = userDoc.data().submissionsCount || 0;
-                    await updateDoc(userDocRef, { submissionsCount: currentCount + 1 });
-                }
-
                 document.getElementById('news-text').value = '';
-                showToast('News submitted successfully!');
-
+                showToast('News submitted for review!');
+                loadInitialData(); // Refresh user data to update submission count
             } catch (error) {
-                console.error("Error submitting news:", error);
-                showToast('Failed to submit news. Please try again.', true);
+                showToast(error.message || 'Failed to submit news.', true);
             }
         });
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
-            initFirebase();
-            showPage('profile-page', 'My Profile'); // Show profile page by default
+            showPage('profile-page', 'My Profile');
+            // Simulate a network delay for the loading skeleton
+            setTimeout(() => {
+                // In a real app, this would be where you fetch data.
+                // For now, we'll just populate with dummy data.
+                 const dummyUserData = {
+                    id: USER_ID,
+                    username: 'dastekhar',
+                    points: 1250,
+                    submissionsCount: 42,
+                    ownedBorders: ['default', 'moon', 'leaf'],
+                    activeBorder: 'moon'
+                };
+                 BORDER_SHOP = { // Dummy shop data
+                    'moon': { 'name': 'Moonlit Night', 'emoji': '🌙', 'price': 500, 'border_text': "┄─━ ☽ ✧ ☾ ━─┄" },
+                    'leaf': { 'name': 'Green Leaf', 'emoji': '🌿', 'price': 750, 'border_text': "~-ˋˏ ༻🌿༺ ˎˊ-~" },
+                    'sparkles': { 'name': 'Sparkle Shine', 'emoji': '✨', 'price': 500, 'border_text': "‧₊˚✩彡✨彡✩˚₊‧" }
+                 };
+                updateUIWithUserData(dummyUserData);
+                document.getElementById('loading-skeleton').style.display = 'none';
+                document.getElementById('app-content').classList.remove('hidden');
+
+                // If you want to test with the Flask API, comment out the dummy data above and uncomment this line:
+                // loadInitialData();
+            }, 1000);
         });
     </script>
 </body>
 </html>
+
