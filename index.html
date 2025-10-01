@@ -21,7 +21,7 @@
         .preset-item { padding: 15px 20px; border-radius: 12px; background-color: var(--tg-secondary-bg); border: 2px solid transparent; text-align: left; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: flex; justify-content: space-between; align-items: center; }
         .preset-item:active { transform: scale(0.98); }
         .preset-item span { flex-grow: 1; }
-        .preset-item .news-type { font-size: 12px; color: var(--tg-hint); margin-left: 10px; }
+        .preset-item .news-type { font-size: 12px; color: var(--tg-hint); margin-left: 10px; flex-grow: 0; white-space: nowrap;}
         #no-presets-message { color: var(--tg-hint); text-align: center; padding: 40px 0; }
     </style>
 </head>
@@ -55,7 +55,6 @@
     }
 
     function populatePresets(presets) {
-        // Clear any existing presets
         presetsContainer.innerHTML = '';
 
         if (!presets || presets.length === 0) {
@@ -69,11 +68,9 @@
             const presetButton = document.createElement('div');
             presetButton.className = 'preset-item';
             
-            // The main name of the preset
             const nameSpan = document.createElement('span');
             nameSpan.textContent = preset.name;
             
-            // The news type (Ordinary/Sinners)
             const typeSpan = document.createElement('span');
             typeSpan.className = 'news-type';
             typeSpan.textContent = preset.news_type;
@@ -81,17 +78,11 @@
             presetButton.appendChild(nameSpan);
             presetButton.appendChild(typeSpan);
 
-            // Add a click listener to handle submission
             presetButton.addEventListener('click', () => {
-                // When a preset is clicked, we send its data to the backend
-                // The backend will then forward it to the admin
-                
-                // First, deserialize the message parts
                 const messages = JSON.parse(preset.serialized_messages);
                 const stickerPart = messages.find(m => m.sticker);
                 const textPart = messages.find(m => m.text || m.caption);
                 
-                // Construct the data payload expected by the original handle_mini_app_data
                 const submissionData = {
                     newsType: preset.news_type,
                     stickerFileId: stickerPart ? stickerPart.sticker : null,
@@ -102,7 +93,7 @@
                 tg.showConfirm(`Submit the preset "${preset.name}"?`, (isConfirmed) => {
                     if (isConfirmed) {
                         tg.sendData(JSON.stringify(submissionData));
-                        tg.close();
+                        // The app will close automatically after sending data
                     }
                 });
             });
@@ -112,19 +103,22 @@
     }
 
     // --- Initialization and Event Listeners ---
-    tg.ready();
-
-    // 1. Request presets from the backend as soon as the app is ready
-    tg.sendData(JSON.stringify({ event: 'get_presets' }));
+    tg.ready(() => {
+        // 1. Request presets from the backend as soon as the app is ready
+        tg.sendData(JSON.stringify({ event: 'get_presets' }));
+    });
 
     // 2. Listen for the backend's response
-    tg.onEvent('web_app_data_received', (data) => {
+    tg.onEvent('web_app_data_received', (eventData) => {
         try {
-            // The data from answerWebAppQuery is a string, so we parse it
-            const response = JSON.parse(data.data);
-            if (response.presets) {
-                // If we received presets, populate the UI
-                populatePresets(response.presets);
+            // Check if the eventData contains data
+            if (eventData && eventData.data) {
+                // The data from answerWebAppQuery is a string, so we parse it
+                const response = JSON.parse(eventData.data);
+                if (response.presets) {
+                    // If we received presets, populate the UI
+                    populatePresets(response.presets);
+                }
             }
         } catch (e) {
             console.error('Failed to parse presets data:', e);
@@ -136,7 +130,7 @@
     
     // --- Final Setup ---
     tg.expand();
-    showPage('page-submit'); // Show the presets page by default
+    showPage('page-submit');
 </script>
 </body>
 </html>
