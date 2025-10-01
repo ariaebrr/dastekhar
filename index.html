@@ -1,41 +1,67 @@
 <script>
     const tg = window.Telegram.WebApp;
 
-    const presetsContainer = document.getElementById('presets-container');
-    const messageArea = document.getElementById('message-area');
+    // This variable will hold all the data your app needs.
+    let appData = {};
+
+    // --- Your existing UI functions ---
+    function showMainMenu() {
+        // Code to show your main menu (Shop, Profile, Submit News buttons)
+        document.body.innerHTML = `
+            <h1>Cinder News App</h1>
+            <button onclick="showSubmitNewsView()">Submit News</button>
+            <button onclick="alert('Shop not implemented yet')">Shop</button>
+            <button onclick="alert('Profile not implemented yet')">My Profile</button>
+        `;
+    }
+
+    function showSubmitNewsView() {
+        // Code to show your news submission form
+        // It now includes the "Load Presets" button
+        document.body.innerHTML = `
+            <h2>Submit News</h2>
+            <button id="loadPresetsBtn">Load From Saved Presets</button>
+            <div id="presets-container"></div>
+            <p id="message-area"></p>
+            <hr>
+            <button onclick="showMainMenu()">Back to Main Menu</button>
+        `;
+        // Add the event listener for the new button
+        document.getElementById('loadPresetsBtn').addEventListener('click', () => {
+            // This function now reads from the 'appData' variable we saved earlier
+            populatePresets(appData.presets);
+        });
+    }
 
     function populatePresets(presets) {
+        const presetsContainer = document.getElementById('presets-container');
+        const messageArea = document.getElementById('message-area');
         presetsContainer.innerHTML = '';
 
         if (!presets || presets.length === 0) {
-            messageArea.textContent = 'You have no saved news presets. You can create them using the "My Saved News 📝" button in the bot.';
+            messageArea.textContent = 'You have no saved news presets.';
             return;
         }
-
         messageArea.style.display = 'none';
 
         presets.forEach(preset => {
             const presetButton = document.createElement('div');
-            presetButton.className = 'preset-item';
-            
-            const nameSpan = document.createElement('span');
-            nameSpan.textContent = preset.name;
-            
-            const typeSpan = document.createElement('span');
-            typeSpan.className = 'news-type';
-            typeSpan.textContent = preset.news_type;
-
-            presetButton.appendChild(nameSpan);
-            presetButton.appendChild(typeSpan);
+            // This is just example styling; you can make it look however you want
+            presetButton.style.padding = '10px';
+            presetButton.style.border = '1px solid #ccc';
+            presetButton.style.marginBottom = '5px';
+            presetButton.style.cursor = 'pointer';
+            presetButton.textContent = `${preset.name} (${preset.news_type})`;
 
             presetButton.addEventListener('click', () => {
+                // This part for submitting data is the same as before
                 const messages = JSON.parse(preset.serialized_messages);
                 const stickerPart = messages.find(m => m.sticker);
                 const textPart = messages.find(m => m.text || m.caption);
                 
                 const submissionData = {
                     newsType: preset.news_type,
-                    stickerFileId: stickerPart ? stickerPart.sticker : null, // Corrected line
+                    stickerFileId: stickerPart ? stickerPart.sticker : null,
                     text: textPart ? (textPart.text || textPart.caption) : '',
                     enableAnonReply: preset.anonymous_replies_enabled === 1
                 };
@@ -43,33 +69,29 @@
                 tg.showConfirm(`Submit the preset "${preset.name}"?`, (isConfirmed) => {
                     if (isConfirmed) {
                         tg.sendData(JSON.stringify(submissionData));
-                        // The app will close after sending data
                     }
                 });
             });
-
             presetsContainer.appendChild(presetButton);
         });
     }
 
+
+    // --- This is the main startup logic ---
     tg.ready(() => {
         tg.expand();
         try {
-            // Get data passed in the URL (e.g., ?data=....)
-            const urlParams = new URLSearchParams(window.location.search);
-            const dataB64 = urlParams.get('data');
-
-            if (dataB64) {
-                // Decode the data from Base64 and parse the JSON
-                const presetsJson = atob(dataB64);
-                const presets = JSON.parse(presetsJson);
-                populatePresets(presets);
-            } else {
-                messageArea.textContent = 'Could not load data. Please open the app using the /presets command in the bot.';
+            // Check if the bot passed data in the start_param
+            if (tg.initDataUnsafe.start_param) {
+                const dataB64 = tg.initDataUnsafe.start_param;
+                const dataJson = atob(dataB64);
+                appData = JSON.parse(dataJson); // Save the data globally
             }
         } catch (e) {
             tg.showAlert(`Error processing initial data: ${e}`);
-            messageArea.textContent = 'There was an error loading your presets.';
         }
+
+        // Show the main menu of the app on startup
+        showMainMenu();
     });
 </script>
