@@ -6,7 +6,6 @@
     <title>Cinder App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* CSS is exactly the same as the previous version, including the debug button style */
         :root {--tg-bg: var(--tg-theme-bg-color, #ffffff);--tg-text: var(--tg-theme-text-color, #000000);--tg-hint: var(--tg-theme-hint-color, #999999);--tg-button: var(--tg-theme-button-color, #007aff);--tg-button-text: var(--tg-theme-button-text-color, #ffffff);--tg-secondary-bg: var(--tg-theme-secondary-bg-color, #f0f0f0);--tg-header-bg: var(--tg-theme-header-bg-color, #efeff3);}
         @keyframes fadeInUp {from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); }}
         body {font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;background-color: var(--tg-bg);color: var(--tg-text);margin: 0;padding: 0;display: flex;flex-direction: column;height: 100vh;overflow: hidden;-webkit-font-smoothing: antialiased;}
@@ -53,15 +52,12 @@
     <nav class="tab-bar"><div class="tab-item" data-page="page-submit"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path></svg></div><div class="tab-item" data-page="page-shop"><svg viewBox="0 0 24 24"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 16H6V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v12z"></path></svg></div><div class="tab-item" data-page="page-profile"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg></div></nav>
 
 <script>
-    // This script is the same as the previous "final fix" version,
-    // but with the debug button logic added back in.
-
     const tg = window.Telegram.WebApp;
 
+    // --- DOM Elements ---
     const tabItems = document.querySelectorAll('.tab-item');
     const pages = document.querySelectorAll('.page');
     const btnOrdinary = document.getElementById('type-ordinary');
-    // ... all other element selectors ...
     const btnSinners = document.getElementById('type-sinners');
     const stickerSelector = document.getElementById('sticker-selector');
     const stickerPreviewThumb = document.getElementById('sticker-preview-thumb');
@@ -73,28 +69,120 @@
     const previewBorder = document.getElementById('preview-border');
     const debugBtn = document.getElementById('debug-btn');
     
+    // --- State and Constants ---
     const BORDERS = { ordinary: "┄ ───╌ ⟡ ╌─── ┄\n𑑍 CinderNews.t.me .", sinners: "⟣╌─── ┄ ───╌⟢\n𑑍 CinderNews.t.me ." };
     let submissionData = { newsType: null, stickerUrl: null, stickerFileId: null, text: '', enableAnonReply: false };
 
-    function showPage(pageId){ /* ... function body ... */ }
-    function updatePreview(){ /* ... function body ... */ }
-    function checkFormCompletion(){ /* ... function body ... */ }
-    function handleStickerSelected(sticker){ /* ... function body ... */ }
+    // --- Core Functions ---
+    function showPage(pageId) {
+        pages.forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        tabItems.forEach(t => t.classList.toggle('active', t.dataset.page === pageId));
+        if (pageId === 'page-submit') {
+            checkFormCompletion();
+        } else {
+            tg.MainButton.hide();
+        }
+    }
 
-    // --- Strict Initialization Sequence ---
+    function updatePreview() {
+        let shouldShow = false;
+        if (submissionData.stickerUrl) {
+            previewStickerImg.src = submissionData.stickerUrl;
+            shouldShow = true;
+        } else {
+            previewStickerImg.src = "";
+        }
+        
+        previewText.innerText = submissionData.text || "";
+        if (submissionData.text) {
+            shouldShow = true;
+        }
+
+        if (submissionData.newsType === 'Ordinary 🌪') {
+            previewBorder.innerText = BORDERS.ordinary;
+        } else if (submissionData.newsType === 'Sinners ⛓') {
+            previewBorder.innerText = BORDERS.sinners;
+        } else {
+            previewBorder.innerText = "";
+        }
+        
+        livePreview.style.display = shouldShow ? 'block' : 'none';
+    }
+
+    function checkFormCompletion() {
+        if (submissionData.newsType && submissionData.stickerFileId && submissionData.text.trim() !== "") {
+            tg.MainButton.show();
+        } else {
+            tg.MainButton.hide();
+        }
+    }
+
+    // --- THIS IS THE CORRECTED FUNCTION ---
+    function handleStickerSelected(eventData) {
+        // This line handles both the new {sticker: ...} format and the old direct format.
+        const sticker = eventData.sticker || eventData;
+
+        // A safety check to ensure we have valid sticker data.
+        if (!sticker || !sticker.file_id) {
+            console.error('Invalid sticker data received:', eventData);
+            tg.showAlert('Could not process the selected sticker. Please try again.');
+            return;
+        }
+
+        submissionData.stickerFileId = sticker.file_id;
+        submissionData.stickerUrl = sticker.thumbnail_url;
+        stickerPreviewThumb.src = sticker.thumbnail_url;
+        stickerPreviewThumb.style.display = 'block';
+        checkFormCompletion();
+        updatePreview();
+    }
+
+    // --- Initialization and Event Listeners ---
+    tg.ready();
+    
     tg.MainButton.setText('Submit News');
     
-    // All event listeners
     tabItems.forEach(tab => tab.addEventListener('click', () => showPage(tab.dataset.page)));
-    btnOrdinary.addEventListener('click', () => { /* ... */ });
-    btnSinners.addEventListener('click', () => { /* ... */ });
-    newsText.addEventListener('input', (e) => { /* ... */ });
-    anonReplyCheckbox.addEventListener('change', (e) => { /* ... */ });
-    stickerSelector.addEventListener('click', () => { /* ... */ });
-    tg.onEvent('stickerSelected', handleStickerSelected);
-    tg.onEvent('mainButtonClicked', () => { /* ... */ });
-    
-    // RE-ADD THE DEBUG LISTENER
+
+    btnOrdinary.addEventListener('click', () => {
+        submissionData.newsType = 'Ordinary 🌪';
+        btnOrdinary.classList.add('active');
+        btnSinners.classList.remove('active');
+        checkFormCompletion();
+        updatePreview();
+    });
+
+    btnSinners.addEventListener('click', () => {
+        submissionData.newsType = 'Sinners ⛓';
+        btnSinners.classList.add('active');
+        btnOrdinary.classList.remove('active');
+        checkFormCompletion();
+        updatePreview();
+    });
+
+    newsText.addEventListener('input', (e) => {
+        submissionData.text = e.target.value;
+        checkFormCompletion();
+        updatePreview();
+    });
+
+    anonReplyCheckbox.addEventListener('change', (e) => {
+        submissionData.enableAnonReply = e.target.checked;
+    });
+
+    stickerSelector.addEventListener('click', () => {
+        if (tg.openStickerPicker) {
+            // New method: relies on the 'stickerSelected' event
+            tg.openStickerPicker();
+        } else if (tg.showStickerPicker) {
+            // Old method: uses a direct callback (kept for compatibility)
+            tg.showStickerPicker({ text: 'Select a sticker' }, handleStickerSelected);
+        } else {
+            tg.showAlert('Your version of Telegram does not support the sticker picker. Please update your app.');
+        }
+    });
+
     debugBtn.addEventListener('click', () => {
         const debugInfo = [
             `Version: ${tg.version}`,
@@ -105,23 +193,22 @@
         ];
         tg.showAlert(debugInfo.join('\n'));
     });
+
+    // --- Telegram WebApp SDK Event Handlers ---
+    tg.onEvent('stickerSelected', handleStickerSelected);
     
-    tg.ready();
+    tg.onEvent('mainButtonClicked', () => {
+        if (document.getElementById('page-submit').classList.contains('active')) {
+            tg.sendData(JSON.stringify(submissionData));
+            tg.close();
+        }
+    });
+    
+    // --- Final Setup ---
     tg.expand();
     showPage('page-submit');
     updatePreview();
 
-    // Full Function Definitions
-    function showPage(pageId){pages.forEach(p=>p.classList.remove('active'));document.getElementById(pageId).classList.add('active');tabItems.forEach(t=>t.classList.toggle('active',t.dataset.page===pageId));if(pageId==='page-submit')checkFormCompletion();else tg.MainButton.hide();}
-    function updatePreview(){let s=!1;submissionData.stickerUrl?(previewStickerImg.src=submissionData.stickerUrl,s=!0):previewStickerImg.src="";previewText.innerText=submissionData.text||"";submissionData.text&&(s=!0);submissionData.newsType==="Ordinary 🌪"?previewBorder.innerText=BORDERS.ordinary:submissionData.newsType==="Sinners ⛓"?previewBorder.innerText=BORDERS.sinners:previewBorder.innerText="";livePreview.style.display=s?"block":"none"}
-    function checkFormCompletion(){if(submissionData.newsType&&submissionData.stickerFileId&&submissionData.text.trim()!=="")tg.MainButton.show();else tg.MainButton.hide()}
-    function handleStickerSelected(sticker){submissionData.stickerFileId=sticker.file_id;submissionData.stickerUrl=sticker.thumbnail_url;stickerPreviewThumb.src=sticker.thumbnail_url;stickerPreviewThumb.style.display='block';checkFormCompletion();updatePreview();}
-    btnOrdinary.addEventListener('click', () => { submissionData.newsType = 'Ordinary 🌪'; btnOrdinary.classList.add('active'); btnSinners.classList.remove('active'); checkFormCompletion(); updatePreview(); });
-    btnSinners.addEventListener('click', () => { submissionData.newsType = 'Sinners ⛓'; btnSinners.classList.add('active'); btnOrdinary.classList.remove('active'); checkFormCompletion(); updatePreview(); });
-    newsText.addEventListener('input', (e) => { submissionData.text = e.target.value; checkFormCompletion(); updatePreview(); });
-    anonReplyCheckbox.addEventListener('change', (e) => { submissionData.enableAnonReply = e.target.checked; });
-    stickerSelector.addEventListener('click', () => {if (tg.openStickerPicker) { tg.openStickerPicker(); } else if (tg.showStickerPicker) { tg.showStickerPicker({ text: 'Select a sticker' }, handleStickerSelected); } else { tg.showAlert('Your version of Telegram does not support the sticker picker. Please update your app.'); }});
-    tg.onEvent('mainButtonClicked', () => {if (document.getElementById('page-submit').classList.contains('active')) { tg.sendData(JSON.stringify(submissionData)); tg.close(); }});
 </script>
 </body>
 </html>
