@@ -2,150 +2,75 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cinder App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Test</title>
+    <!-- Load the official Telegram script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --tg-bg: var(--tg-theme-bg-color, #ffffff);
-            --tg-text: var(--tg-theme-text-color, #000000);
-            --tg-hint: var(--tg-theme-hint-color, #999999);
-            --tg-button: var(--tg-theme-button-color, #007aff);
-            --tg-button-text: var(--tg-theme-button-text-color, #ffffff);
-            --tg-secondary-bg: var(--tg-theme-secondary-bg-color, #f0f0f0);
-        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--tg-bg);
-            color: var(--tg-text);
-            margin: 0;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            text-align: center;
             padding: 20px;
         }
-        #app-container { max-width: 600px; margin: 0 auto; }
-        h1 { font-size: 32px; font-weight: 700; margin: 0 0 10px 0; }
-        p { font-size: 16px; color: var(--tg-hint); margin-bottom: 30px; }
-        .action-button {
-            width: 100%; padding: 15px; border: none; border-radius: 12px;
-            background-color: var(--tg-button); color: var(--tg-button-text);
-            font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 15px;
+        #message-box {
+            padding: 20px;
+            background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            border-radius: 12px;
+            word-wrap: break-word; /* Prevents long strings from overflowing */
         }
-        .preset-item {
-            padding: 15px 20px; border-radius: 12px; background-color: var(--tg-secondary-bg);
-            font-weight: 600; cursor: pointer; margin-bottom: 10px; text-align: left;
-        }
-        .back-button { font-size: 16px; color: var(--tg-button); cursor: pointer; margin-top: 20px; display: inline-block; }
     </style>
 </head>
 <body>
-    <div id="app-container">
-        </div>
 
-<script>
-    // This event listener waits for the page to be fully loaded before running any script
-    document.addEventListener('DOMContentLoaded', () => {
-        const appContainer = document.getElementById('app-container');
+    <h1>Telegram Mini App Test</h1>
+    <p>This page checks if the bot is sending data correctly.</p>
 
-        // Check if the Telegram WebApp object exists
-        if (window.Telegram && window.Telegram.WebApp) {
-            // --- WE ARE INSIDE TELEGRAM ---
+    <div id="message-box">
+        <p>Waiting for data...</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const messageBox = document.getElementById('message-box');
+            
+            // First, check if we are inside Telegram at all
+            if (!window.Telegram || !window.Telegram.WebApp) {
+                messageBox.innerHTML = '<h2>Error</h2><p>This is a Telegram Mini App and must be opened from inside the Telegram client.</p>';
+                return;
+            }
+
             const tg = window.Telegram.WebApp;
-            runTelegramApp();
-        } else {
-            // --- WE ARE IN A REGULAR BROWSER ---
-            console.log("Not running inside Telegram. Displaying fallback message.");
-            document.body.style.backgroundColor = '#f0f2f5'; // Make sure the page isn't black
-            appContainer.innerHTML = `
-                <div style="text-align: center; padding-top: 50px; color: #333;">
-                    <h1>Unsupported Environment</h1>
-                    <p>This is a Telegram Mini App and must be opened from within the Telegram application.</p>
-                </div>
-            `;
-        }
-
-        function runTelegramApp() {
-            let appData = {};
-
-            function showMainMenu() {
-                appContainer.innerHTML = `
-                    <h1>Cinder News App</h1>
-                    <p>Welcome! Please choose an option.</p>
-                    <button class="action-button" id="submit-news-btn">Submit News</button>
-                    <button class="action-button" id="shop-btn">Shop</button>
-                    <button class="action-button" id="profile-btn">My Profile</button>
-                `;
-                document.getElementById('submit-news-btn').addEventListener('click', showSubmitNewsView);
-                document.getElementById('shop-btn').addEventListener('click', () => tg.showAlert('Shop not implemented yet.'));
-                document.getElementById('profile-btn').addEventListener('click', () => tg.showAlert('Profile not implemented yet.'));
-            }
-
-            function showSubmitNewsView() {
-                appContainer.innerHTML = `
-                    <h1>Submit News</h1>
-                    <button class="action-button" id="loadPresetsBtn">Load From Saved News</button>
-                    <div id="presets-container"></div>
-                    <p id="message-area" style="display: none;"></p>
-                    <div class="back-button" id="back-btn">‹ Back to Main Menu</div>
-                `;
-                document.getElementById('loadPresetsBtn').addEventListener('click', () => {
-                    populatePresets(appData.presets);
-                });
-                document.getElementById('back-btn').addEventListener('click', showMainMenu);
-            }
-
-            function populatePresets(presets) {
-                const presetsContainer = document.getElementById('presets-container');
-                const messageArea = document.getElementById('message-area');
-                presetsContainer.innerHTML = '';
-
-                if (!presets || presets.length === 0) {
-                    messageArea.textContent = 'You have no saved news presets.';
-                    messageArea.style.display = 'block';
-                    return;
-                }
-                messageArea.style.display = 'none';
-
-                presets.forEach(preset => {
-                    const presetButton = document.createElement('div');
-                    presetButton.className = 'preset-item';
-                    presetButton.textContent = `${preset.name} (${preset.news_type})`;
-
-                    presetButton.addEventListener('click', () => {
-                        const messages = JSON.parse(preset.serialized_messages);
-                        const stickerPart = messages.find(m => m.sticker);
-                        const textPart = messages.find(m => m.text || m.caption);
-                        
-                        const submissionData = {
-                            newsType: preset.news_type,
-                            stickerFileId: stickerPart ? stickerPart.sticker : null,
-                            text: textPart ? (textPart.text || textPart.caption) : '',
-                            enableAnonReply: preset.anonymous_replies_enabled === 1
-                        };
-
-                        tg.showConfirm(`Submit the preset "${preset.name}"?`, (isConfirmed) => {
-                            if (isConfirmed) {
-                                tg.sendData(JSON.stringify(submissionData));
-                            }
-                        });
-                    });
-                    presetsContainer.appendChild(presetButton);
-                });
-            }
 
             tg.ready(() => {
                 tg.expand();
-                try {
-                    if (tg.initDataUnsafe.start_param) {
-                        const dataB64 = tg.initDataUnsafe.start_param;
-                        const dataJson = atob(dataB64);
-                        appData = JSON.parse(dataJson);
+                
+                // Check if the bot passed any data in the URL
+                if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
+                    try {
+                        const encodedData = tg.initDataUnsafe.start_param;
+                        // Decode the data from Base64
+                        const decodedData = atob(encodedData);
+                        // Parse the JSON string
+                        const jsonData = JSON.parse(decodedData);
+
+                        // Display the received data
+                        messageBox.innerHTML = `
+                            <h2>Success!</h2>
+                            <p>The bot sent the following data:</p>
+                            <pre><code>${JSON.stringify(jsonData, null, 2)}</code></pre>
+                        `;
+                    } catch (e) {
+                        messageBox.innerHTML = `<h2>JavaScript Error</h2><p>Could not decode or parse the data from the bot. Error: ${e.message}</p>`;
                     }
-                } catch (e) {
-                    tg.showAlert(`Error loading initial data: ${e}`);
+                } else {
+                    // This message shows if the bot didn't attach any data
+                    messageBox.innerHTML = '<h2>No Data Received</h2><p>The app opened, but the bot did not send any data in the launch URL.</p>';
                 }
-                showMainMenu();
             });
-        }
-    });
-</script>
+        });
+    </script>
+
 </body>
 </html>
