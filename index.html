@@ -17,35 +17,22 @@
         .tab-item {flex-grow: 1; text-align: center; padding: 12px 0; cursor: pointer; color: var(--tg-hint); transition: color 0.2s ease;}
         .tab-item svg { width: 28px; height: 28px; fill: currentColor; }
         .tab-item.active { color: var(--tg-button); }
-        .form-section { margin-bottom: 20px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .form-button { padding: 15px; border-radius: 12px; background-color: var(--tg-secondary-bg); border: 2px solid transparent; text-align: center; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
-        .form-button:active { transform: scale(0.97); }
-        .form-button.active { border-color: var(--tg-button); background-color: transparent; }
-        textarea {width: 100%; height: 120px; padding: 12px; border-radius: 12px; border: 1px solid var(--tg-secondary-bg); background-color: var(--tg-secondary-bg); color: var(--tg-text); font-size: 16px; resize: none; box-sizing: border-box;}
-        textarea:focus { background-color: transparent; border-color: var(--tg-button); outline: none; }
-        .sticker-button-wrapper { display: flex; align-items: center; gap: 10px; }
-        .sticker-button-wrapper .form-button { flex-grow: 1; }
-        .sticker-button-wrapper img { height: 53px; width: 53px; border-radius: 8px; background-color: var(--tg-secondary-bg); object-fit: cover; }
-        .option-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; font-size: 15px; }
-        .toggle-switch { position: relative; display: inline-block; width: 51px; height: 31px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--tg-secondary-bg); transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 23px; width: 23px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-        input:checked + .slider { background-color: var(--tg-button); }
-        input:checked + .slider:before { transform: translateX(20px); }
-        .preview-container { margin-top: 25px; padding: 15px; background-color: var(--tg-secondary-bg); border-radius: 12px; }
-        .preview-container h3 { margin: 0 0 10px 0; font-size: 14px; color: var(--tg-hint); font-weight: 600; }
-        .preview-content { display: flex; gap: 10px; }
-        .preview-sticker img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
-        .preview-text-content { flex-grow: 1; font-size: 15px; white-space: pre-wrap; word-wrap: break-word; }
-        .preview-border { margin-top: 10px; font-size: 12px; color: var(--tg-hint); white-space: pre-wrap; text-align: center; }
-        .debug-button { background-color: var(--tg-hint); color: var(--tg-bg); margin-top: 10px; padding: 8px; font-size: 12px; border-radius: 8px; border: none; cursor: pointer; }
+        .preset-list { display: flex; flex-direction: column; gap: 10px; }
+        .preset-item { padding: 15px 20px; border-radius: 12px; background-color: var(--tg-secondary-bg); border: 2px solid transparent; text-align: left; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: flex; justify-content: space-between; align-items: center; }
+        .preset-item:active { transform: scale(0.98); }
+        .preset-item span { flex-grow: 1; }
+        .preset-item .news-type { font-size: 12px; color: var(--tg-hint); margin-left: 10px; }
+        #no-presets-message { color: var(--tg-hint); text-align: center; padding: 40px 0; }
     </style>
 </head>
 <body>
     <div class="main-content">
-        <div id="page-submit" class="page"><h2>New Submission</h2><div class="form-section grid-2"><div class="form-button" id="type-ordinary">Ordinary 🌪</div><div class="form-button" id="type-sinners">Sinners ⛓</div></div><div class="form-section sticker-button-wrapper"><div class="form-button" id="sticker-selector">Select Sticker</div><img id="sticker-preview-thumb" src="" style="display: none;"></div><div class="form-section"><textarea id="news-text" placeholder="Write your news text here..."></textarea></div><div class="form-section preview-container" id="live-preview" style="display: none;"><h3>Live Preview</h3><div class="preview-content"><div class="preview-sticker"><img id="preview-sticker-img" src=""></div><div class="preview-text-content"><span id="preview-text"></span></div></div><div class="preview-border" id="preview-border"></div></div><div class="option-item"><span>Enable Anonymous Replies</span><label class="toggle-switch"><input type="checkbox" id="anon-reply-checkbox"><span class="slider"></span></label></div><button id="debug-btn" class="debug-button">Debug Info</button></div>
+        <div id="page-submit" class="page">
+            <h2>My Saved News</h2>
+            <div class="preset-list" id="presets-container">
+                </div>
+            <p id="no-presets-message" style="display: none;">You have no saved news presets. You can create them using the "My Saved News 📝" button in the bot.</p>
+        </div>
         <div id="page-shop" class="page"><h2>🛍️ Shop</h2><p style="text-align: center; color: var(--tg-hint);">The graphical shop for borders and pins will be built here.</p></div>
         <div id="page-profile" class="page"><h2>👤 My Profile</h2><p style="text-align: center; color: var(--tg-hint);">Your stats, achievements, and rank dashboard will appear here.</p></div>
     </div>
@@ -57,158 +44,99 @@
     // --- DOM Elements ---
     const tabItems = document.querySelectorAll('.tab-item');
     const pages = document.querySelectorAll('.page');
-    const btnOrdinary = document.getElementById('type-ordinary');
-    const btnSinners = document.getElementById('type-sinners');
-    const stickerSelector = document.getElementById('sticker-selector');
-    const stickerPreviewThumb = document.getElementById('sticker-preview-thumb');
-    const newsText = document.getElementById('news-text');
-    const anonReplyCheckbox = document.getElementById('anon-reply-checkbox');
-    const livePreview = document.getElementById('live-preview');
-    const previewStickerImg = document.getElementById('preview-sticker-img');
-    const previewText = document.getElementById('preview-text');
-    const previewBorder = document.getElementById('preview-border');
-    const debugBtn = document.getElementById('debug-btn');
-    
-    // --- State and Constants ---
-    const BORDERS = { ordinary: "┄ ───╌ ⟡ ╌─── ┄\n𑑍 CinderNews.t.me .", sinners: "⟣╌─── ┄ ───╌⟢\n𑑍 CinderNews.t.me ." };
-    let submissionData = { newsType: null, stickerUrl: null, stickerFileId: null, text: '', enableAnonReply: false };
+    const presetsContainer = document.getElementById('presets-container');
+    const noPresetsMessage = document.getElementById('no-presets-message');
 
     // --- Core Functions ---
     function showPage(pageId) {
         pages.forEach(p => p.classList.remove('active'));
         document.getElementById(pageId).classList.add('active');
         tabItems.forEach(t => t.classList.toggle('active', t.dataset.page === pageId));
-        if (pageId === 'page-submit') {
-            checkFormCompletion();
-        } else {
-            tg.MainButton.hide();
-        }
     }
 
-    function updatePreview() {
-        let shouldShow = false;
-        if (submissionData.stickerUrl) {
-            previewStickerImg.src = submissionData.stickerUrl;
-            shouldShow = true;
-        } else {
-            previewStickerImg.src = "";
-        }
-        
-        previewText.innerText = submissionData.text || "";
-        if (submissionData.text) {
-            shouldShow = true;
-        }
+    function populatePresets(presets) {
+        // Clear any existing presets
+        presetsContainer.innerHTML = '';
 
-        if (submissionData.newsType === 'Ordinary 🌪') {
-            previewBorder.innerText = BORDERS.ordinary;
-        } else if (submissionData.newsType === 'Sinners ⛓') {
-            previewBorder.innerText = BORDERS.sinners;
-        } else {
-            previewBorder.innerText = "";
-        }
-        
-        livePreview.style.display = shouldShow ? 'block' : 'none';
-    }
-
-    function checkFormCompletion() {
-        if (submissionData.newsType && submissionData.stickerFileId && submissionData.text.trim() !== "") {
-            tg.MainButton.show();
-        } else {
-            tg.MainButton.hide();
-        }
-    }
-
-    // --- THIS IS THE CORRECTED FUNCTION ---
-    function handleStickerSelected(eventData) {
-        // This line handles both the new {sticker: ...} format and the old direct format.
-        const sticker = eventData.sticker || eventData;
-
-        // A safety check to ensure we have valid sticker data.
-        if (!sticker || !sticker.file_id) {
-            console.error('Invalid sticker data received:', eventData);
-            tg.showAlert('Could not process the selected sticker. Please try again.');
+        if (!presets || presets.length === 0) {
+            noPresetsMessage.style.display = 'block';
             return;
         }
 
-        submissionData.stickerFileId = sticker.file_id;
-        submissionData.stickerUrl = sticker.thumbnail_url;
-        stickerPreviewThumb.src = sticker.thumbnail_url;
-        stickerPreviewThumb.style.display = 'block';
-        checkFormCompletion();
-        updatePreview();
+        noPresetsMessage.style.display = 'none';
+
+        presets.forEach(preset => {
+            const presetButton = document.createElement('div');
+            presetButton.className = 'preset-item';
+            
+            // The main name of the preset
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = preset.name;
+            
+            // The news type (Ordinary/Sinners)
+            const typeSpan = document.createElement('span');
+            typeSpan.className = 'news-type';
+            typeSpan.textContent = preset.news_type;
+
+            presetButton.appendChild(nameSpan);
+            presetButton.appendChild(typeSpan);
+
+            // Add a click listener to handle submission
+            presetButton.addEventListener('click', () => {
+                // When a preset is clicked, we send its data to the backend
+                // The backend will then forward it to the admin
+                
+                // First, deserialize the message parts
+                const messages = JSON.parse(preset.serialized_messages);
+                const stickerPart = messages.find(m => m.sticker);
+                const textPart = messages.find(m => m.text || m.caption);
+                
+                // Construct the data payload expected by the original handle_mini_app_data
+                const submissionData = {
+                    newsType: preset.news_type,
+                    stickerFileId: stickerPart ? stickerPart.sticker : null,
+                    text: textPart ? (textPart.text || textPart.caption) : '',
+                    enableAnonReply: preset.anonymous_replies_enabled === 1
+                };
+                
+                tg.showConfirm(`Submit the preset "${preset.name}"?`, (isConfirmed) => {
+                    if (isConfirmed) {
+                        tg.sendData(JSON.stringify(submissionData));
+                        tg.close();
+                    }
+                });
+            });
+
+            presetsContainer.appendChild(presetButton);
+        });
     }
 
     // --- Initialization and Event Listeners ---
     tg.ready();
-    
-    tg.MainButton.setText('Submit News');
-    
+
+    // 1. Request presets from the backend as soon as the app is ready
+    tg.sendData(JSON.stringify({ event: 'get_presets' }));
+
+    // 2. Listen for the backend's response
+    tg.onEvent('web_app_data_received', (data) => {
+        try {
+            // The data from answerWebAppQuery is a string, so we parse it
+            const response = JSON.parse(data.data);
+            if (response.presets) {
+                // If we received presets, populate the UI
+                populatePresets(response.presets);
+            }
+        } catch (e) {
+            console.error('Failed to parse presets data:', e);
+            tg.showAlert('An error occurred while loading your presets.');
+        }
+    });
+
     tabItems.forEach(tab => tab.addEventListener('click', () => showPage(tab.dataset.page)));
-
-    btnOrdinary.addEventListener('click', () => {
-        submissionData.newsType = 'Ordinary 🌪';
-        btnOrdinary.classList.add('active');
-        btnSinners.classList.remove('active');
-        checkFormCompletion();
-        updatePreview();
-    });
-
-    btnSinners.addEventListener('click', () => {
-        submissionData.newsType = 'Sinners ⛓';
-        btnSinners.classList.add('active');
-        btnOrdinary.classList.remove('active');
-        checkFormCompletion();
-        updatePreview();
-    });
-
-    newsText.addEventListener('input', (e) => {
-        submissionData.text = e.target.value;
-        checkFormCompletion();
-        updatePreview();
-    });
-
-    anonReplyCheckbox.addEventListener('change', (e) => {
-        submissionData.enableAnonReply = e.target.checked;
-    });
-
-    stickerSelector.addEventListener('click', () => {
-        if (tg.openStickerPicker) {
-            // New method: relies on the 'stickerSelected' event
-            tg.openStickerPicker();
-        } else if (tg.showStickerPicker) {
-            // Old method: uses a direct callback (kept for compatibility)
-            tg.showStickerPicker({ text: 'Select a sticker' }, handleStickerSelected);
-        } else {
-            tg.showAlert('Your version of Telegram does not support the sticker picker. Please update your app.');
-        }
-    });
-
-debugBtn.addEventListener('click', () => {
-    const debugInfo = [
-        `Platform: ${tg.platform}`,
-        `App Version: ${tg.version}`,
-        // This checks if the client is at least version 7.0, a requirement for many new features.
-        `Is Version 7.0+?: ${tg.isVersionAtLeast('7.0')}`,
-        `Sticker Picker Available?: ${!!tg.openStickerPicker}`
-    ];
-    tg.showAlert(debugInfo.join('\n'));
-});
-
-    // --- Telegram WebApp SDK Event Handlers ---
-    tg.onEvent('stickerSelected', handleStickerSelected);
-    
-    tg.onEvent('mainButtonClicked', () => {
-        if (document.getElementById('page-submit').classList.contains('active')) {
-            tg.sendData(JSON.stringify(submissionData));
-            tg.close();
-        }
-    });
     
     // --- Final Setup ---
     tg.expand();
-    showPage('page-submit');
-    updatePreview();
-
+    showPage('page-submit'); // Show the presets page by default
 </script>
 </body>
 </html>
