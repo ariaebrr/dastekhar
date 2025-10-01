@@ -183,16 +183,16 @@
         }
     });
 
-    debugBtn.addEventListener('click', () => {
-        const debugInfo = [
-            `Version: ${tg.version}`,
-            `Platform: ${tg.platform}`,
-            `Is Expanded: ${tg.isExpanded}`,
-            `'openStickerPicker' available: ${!!tg.openStickerPicker}`,
-            `'showStickerPicker' available: ${!!tg.showStickerPicker}`
-        ];
-        tg.showAlert(debugInfo.join('\n'));
-    });
+debugBtn.addEventListener('click', () => {
+    const debugInfo = [
+        `Platform: ${tg.platform}`,
+        `App Version: ${tg.version}`,
+        // This checks if the client is at least version 7.0, a requirement for many new features.
+        `Is Version 7.0+?: ${tg.isVersionAtLeast('7.0')}`,
+        `Sticker Picker Available?: ${!!tg.openStickerPicker}`
+    ];
+    tg.showAlert(debugInfo.join('\n'));
+});
 
     // --- Telegram WebApp SDK Event Handlers ---
     tg.onEvent('stickerSelected', handleStickerSelected);
